@@ -37,7 +37,7 @@ public class UserController {
         if (!hasAt) throw new ValidatorException("Email should have a \"@\" digit");
 
         // login check
-        for (char letter : user.getLogin().toCharArray()){
+        for (char letter : user.getLogin().toCharArray()) {
             if (letter == ' ') hasSpace = true;
         }
         if (user.getLogin().isEmpty() || hasSpace)throw new ValidatorException("Login shouldn't have any spaces or appear empty");
@@ -57,8 +57,8 @@ public class UserController {
     @PostMapping("/users")
     public User posttUser(@RequestBody User user) {
         log.info("POST request for creating user received: " + user.toString());
-        if (validator(user)){
-            for (User us : userList.values()){
+        if (validator(user)) {
+            for (User us : userList.values()) {
                 if (user.getLogin().equals(us.getLogin())) throw new ResponseStatusException(HttpStatusCode.valueOf(409),
                         "Login " + user.getLogin() + " already exists");
             }
@@ -73,10 +73,10 @@ public class UserController {
     }
 
     @PutMapping("/users/{id}")
-    public User putUser (@PathVariable int id, @RequestBody User user){
+    public User putUser (@PathVariable int id, @RequestBody User user) {
         log.info("PUT request for updating user " + id + " received. User=" + user.toString());
         if (userList.containsKey(id)) {
-            if (validator(user)){
+            if (validator(user)) {
                 user.setId(id);
                 userList.put(id, user);
                 return user;
@@ -107,9 +107,10 @@ public class UserController {
     }
 
     @GetMapping("/users/{id}")
-    public User getuser(@PathVariable int id){
-        if (userList.containsKey(id)) return userList.get(id);
-        else{
+    public User getuser(@PathVariable int id) {
+        if (userList.containsKey(id)) {
+            return userList.get(id);
+        } else {
             log.warning("User id=" + id + " was not found");
             throw new ResponseStatusException(HttpStatusCode.valueOf(404), "User id=" + id + " was not found");
         }
