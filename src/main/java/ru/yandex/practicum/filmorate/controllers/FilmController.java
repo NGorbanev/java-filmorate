@@ -47,7 +47,7 @@ public class FilmController {
         }
 
         // max description lenght shouldn't me more than x
-        if (film.getDescription().length() > maxDescriptionLength){
+        if (film.getDescription().length() > maxDescriptionLength) {
             throw new ValidatorException("Film description length is more than " + maxDescriptionLength + " symbols");
         }
 
@@ -65,7 +65,7 @@ public class FilmController {
     }
 
     @PostMapping("/films")
-    public Film postFilm(@RequestBody Film film){
+    public Film postFilm(@RequestBody Film film) {
         log.info("Film POST request received: " + film.toString());
         if (validator(film)) {
             film.setId(generateId());
@@ -81,8 +81,8 @@ public class FilmController {
     @PutMapping("/films")
     public Film putFilmNoArgs(@RequestBody Film film) {
         log.info("Film PUT request received: " + film.toString());
-        if (validator(film)){
-            if (films.containsKey(film.getId())){
+        if (validator(film)) {
+            if (films.containsKey(film.getId())) {
                 films.put(film.getId(), film);
                 log.info("Request was successfully operated");
                 return films.get(film.getId());
@@ -94,9 +94,9 @@ public class FilmController {
     }
 
     @PutMapping("/films/{id}")
-    public Film putFilm(@PathVariable int id, @RequestBody Film film){
+    public Film putFilm(@PathVariable int id, @RequestBody Film film) {
         log.info("Film PUT request received: " + film.toString());
-        if (validator(film)){
+        if (validator(film)) {
             if (!films.containsKey(id)) {
                 log.warning("Film id=" + id + " was not found");
                 throw new ObjectNotFound("Film for update is not found");
@@ -110,7 +110,7 @@ public class FilmController {
     }
 
     @GetMapping("/films")
-    public ArrayList<Film> getFilmsAtArrayList(){
+    public ArrayList<Film> getFilmsAtArrayList() {
         if (films.size() > 0) {
             return new ArrayList<>(films.values());
         } else throw new ResponseStatusException(HttpStatusCode.valueOf(418), "Film list is empty");
