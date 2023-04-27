@@ -12,7 +12,7 @@ public class UserValidatorTest {
 
     UserController uc = new UserController();
 
-    public User createUser(String name, String login, String email, String bDay){
+    public User createUser(String name, String login, String email, String bDay) {
         User user = new User(email, login, bDay);
         user.setName(name);
         return user;
@@ -22,12 +22,12 @@ public class UserValidatorTest {
     public void emailTest() {
         // empty email
         User user = createUser("Somename", "Somelogin", "", "2013-12-11");
-        ValidatorException thrown = Assertions.assertThrowsExactly(ValidatorException.class, ()-> uc.posttUser(user));
+        ValidatorException thrown = Assertions.assertThrowsExactly(ValidatorException.class, () -> uc.posttUser(user));
         Assertions.assertEquals("400 BAD_REQUEST \"Email shouldn't be empty\"", thrown.getMessage());
 
         // no @ symbol
         user.setEmail("someEmail");
-        thrown = Assertions.assertThrowsExactly(ValidatorException.class, ()-> uc.posttUser(user));
+        thrown = Assertions.assertThrowsExactly(ValidatorException.class, () -> uc.posttUser(user));
         Assertions.assertEquals("400 BAD_REQUEST \"Email should have a \"@\" digit\"", thrown.getMessage());
 
         // everything is correct
@@ -40,13 +40,13 @@ public class UserValidatorTest {
     public void loginTest() {
         // login is empty
         User user = createUser("Somename", "", "login@server.domen", "2013-12-11");
-        ValidatorException thrown = Assertions.assertThrowsExactly(ValidatorException.class, ()-> uc.posttUser(user));
+        ValidatorException thrown = Assertions.assertThrowsExactly(ValidatorException.class, () -> uc.posttUser(user));
         Assertions.assertEquals("400 BAD_REQUEST \"Login shouldn't have any spaces or appear empty\"",
                 thrown.getMessage());
 
         // login has spaces
         user.setLogin("Some login");
-        thrown = Assertions.assertThrowsExactly(ValidatorException.class, ()-> uc.posttUser(user));
+        thrown = Assertions.assertThrowsExactly(ValidatorException.class, () -> uc.posttUser(user));
         Assertions.assertEquals("400 BAD_REQUEST \"Login shouldn't have any spaces or appear empty\"",
                 thrown.getMessage());
     }
@@ -65,7 +65,7 @@ public class UserValidatorTest {
         LocalDate ld = LocalDate.now().plusDays(1);
         String dayInFuture = ld.toString().formatted("yyyy-MM-dd");
         User user = createUser("Ivan", "Petya2013", "login@server.domen", dayInFuture);
-        ValidatorException thrown = Assertions.assertThrowsExactly(ValidatorException.class, ()-> uc.posttUser(user));
+        ValidatorException thrown = Assertions.assertThrowsExactly(ValidatorException.class, () -> uc.posttUser(user));
         Assertions.assertEquals("400 BAD_REQUEST \"User birthday must be in the past\"",
                 thrown.getMessage());
     }
