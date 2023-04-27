@@ -1,4 +1,4 @@
-package validatorsTest;
+package validators;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -20,7 +20,7 @@ public class FilmValidatorTest {
     public void filmNameTest() {
         // empty filename
         Film film = createFilm("", "Test description", "2013-12-11", 15);
-        ValidatorException thrown = Assertions.assertThrowsExactly(ValidatorException.class, ()-> fc.postFilm(film));
+        ValidatorException thrown = Assertions.assertThrowsExactly(ValidatorException.class, () -> fc.postFilm(film));
         Assertions.assertEquals("400 BAD_REQUEST \"Filmname shouldn't be empty\"", thrown.getMessage());
     }
 
@@ -32,7 +32,7 @@ public class FilmValidatorTest {
                 "В обычной жизни невозможно описать что-то несуществующее более чем одним словом, но этот фильм этим " +
                 "и уникален. Тут 252 символа накопилось, с пробелами";
         Film film = createFilm("AnyName", longDescription, "2013-12-11", 15);
-        ValidatorException thrown = Assertions.assertThrowsExactly(ValidatorException.class, ()-> fc.postFilm(film));
+        ValidatorException thrown = Assertions.assertThrowsExactly(ValidatorException.class, () -> fc.postFilm(film));
         Assertions.assertEquals(
                 "400 BAD_REQUEST \"Film description length is more than 200 symbols\"",
                 thrown.getMessage());
@@ -48,14 +48,14 @@ public class FilmValidatorTest {
     public void releaseDateTest() {
         // day before release
         Film film = createFilm("EarlyBird", "Testing release date", "1895-12-27", 300);
-        ValidatorException thrown = Assertions.assertThrowsExactly(ValidatorException.class, ()-> fc.postFilm(film));
+        ValidatorException thrown = Assertions.assertThrowsExactly(ValidatorException.class, () -> fc.postFilm(film));
         Assertions.assertEquals("400 BAD_REQUEST \"The film shouldn't be released before 1895-12-28." +
                 "The \"EarlyBird\" was released at 1895-12-27\"",
                 thrown.getMessage());
 
         // no date
         film.setReleaseDate("");
-        DateTimeParseException ex = Assertions.assertThrowsExactly(DateTimeParseException.class, ()-> fc.postFilm(film));
+        DateTimeParseException ex = Assertions.assertThrowsExactly(DateTimeParseException.class, () -> fc.postFilm(film));
         Assertions.assertEquals("Text '' could not be parsed at index 0",
                 ex.getMessage());
 
@@ -69,12 +69,12 @@ public class FilmValidatorTest {
     public void durationTest() {
         // duration is less than 0
         Film film = createFilm("EarlyBird", "Testing release date", "1895-12-29", -5);
-        ValidatorException thrown = Assertions.assertThrowsExactly(ValidatorException.class, ()-> fc.postFilm(film));
+        ValidatorException thrown = Assertions.assertThrowsExactly(ValidatorException.class, () -> fc.postFilm(film));
         Assertions.assertEquals("400 BAD_REQUEST \"Film duration must me more than 0\"", thrown.getMessage());
 
         //duration is 0
         film.setDuration(0);
-        thrown = Assertions.assertThrowsExactly(ValidatorException.class, ()-> fc.postFilm(film));
+        thrown = Assertions.assertThrowsExactly(ValidatorException.class, () -> fc.postFilm(film));
         Assertions.assertEquals("400 BAD_REQUEST \"Film duration must me more than 0\"", thrown.getMessage());
 
         //duration is > 0
