@@ -19,7 +19,7 @@ public class UserValidatorTest {
     }
 
     @Test
-    public void emailTest(){
+    public void emailTest() {
         // empty email
         User user = createUser("Somename", "Somelogin", "", "2013-12-11");
         ValidatorException thrown = Assertions.assertThrowsExactly(ValidatorException.class, ()-> uc.posttUser(user));
@@ -37,7 +37,7 @@ public class UserValidatorTest {
     }
 
     @Test
-    public void loginTest(){
+    public void loginTest() {
         // login is empty
         User user = createUser("Somename", "", "login@server.domen", "2013-12-11");
         ValidatorException thrown = Assertions.assertThrowsExactly(ValidatorException.class, ()-> uc.posttUser(user));
@@ -52,7 +52,7 @@ public class UserValidatorTest {
     }
 
     @Test
-    public void nameTest(){
+    public void nameTest() {
         //if name is empty - login should be used as a name
         User user = createUser("", "Petya2013", "login@server.domen", "2013-12-11");
         user.setId(1);
@@ -61,7 +61,7 @@ public class UserValidatorTest {
     }
 
     @Test
-    public void bithdayTest(){
+    public void bithdayTest() {
         LocalDate ld = LocalDate.now().plusDays(1);
         String dayInFuture = ld.toString().formatted("yyyy-MM-dd");
         User user = createUser("Ivan", "Petya2013", "login@server.domen", dayInFuture);

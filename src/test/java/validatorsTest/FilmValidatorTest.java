@@ -17,7 +17,7 @@ public class FilmValidatorTest {
     }
 
     @Test
-    public void filmNameTest(){
+    public void filmNameTest() {
         // empty filename
         Film film = createFilm("", "Test description", "2013-12-11", 15);
         ValidatorException thrown = Assertions.assertThrowsExactly(ValidatorException.class, ()-> fc.postFilm(film));
@@ -25,7 +25,7 @@ public class FilmValidatorTest {
     }
 
     @Test
-    public void maxDescriptionLengthTest(){
+    public void maxDescriptionLengthTest() {
         //prepare long description
         String longDescription = "" +
                 "Этот фильм создан для того, чтобы представить себе как описание может быть длиннее чем 200 символов. " +
@@ -45,7 +45,7 @@ public class FilmValidatorTest {
     }
 
     @Test
-    public void releaseDateTest(){
+    public void releaseDateTest() {
         // day before release
         Film film = createFilm("EarlyBird", "Testing release date", "1895-12-27", 300);
         ValidatorException thrown = Assertions.assertThrowsExactly(ValidatorException.class, ()-> fc.postFilm(film));
@@ -66,7 +66,7 @@ public class FilmValidatorTest {
     }
 
     @Test
-    public void durationTest(){
+    public void durationTest() {
         // duration is less than 0
         Film film = createFilm("EarlyBird", "Testing release date", "1895-12-29", -5);
         ValidatorException thrown = Assertions.assertThrowsExactly(ValidatorException.class, ()-> fc.postFilm(film));

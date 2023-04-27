@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 
 public class ValidatorException extends ResponseStatusException {
 
-    public ValidatorException(String message){
+    public ValidatorException(String message) {
         super(HttpStatus.BAD_REQUEST, message);
         Logger log = Logger.getLogger(getClass().getName());
         log.warning("Response 400" + ", cause: " + message);

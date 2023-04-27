@@ -22,19 +22,19 @@ public class FilmController {
 
     Logger log = Logger.getLogger(this.getClass().getName());
 
-    private final int MAX_DESCRIPTION_LENGTH = 200;
+    private final int maxDescriptionLength = 200;
     LocalDate dt = LocalDate.of(1895,12,28);
-    private final Instant MIN_FILMDATE =
+    private final Instant minFilmDate =
             Instant.ofEpochSecond(dt.toEpochSecond(LocalTime.of(00,00),
             ZoneOffset.of("+00:00")));
     HashMap<Integer, Film> films = new HashMap<>();
     private int id = 1;
 
-    private int generateId(){
+    private int generateId() {
         return id++;
     }
 
-    private boolean validator(Film film){
+    private boolean validator(Film film) {
         if (film == null) return false;
         LocalDate relDate = LocalDate.parse(film.getReleaseDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         Instant filmDate =
@@ -47,18 +47,18 @@ public class FilmController {
         }
 
         // max description lenght shouldn't me more than x
-        if (film.getDescription().length() > MAX_DESCRIPTION_LENGTH){
-            throw new ValidatorException("Film description length is more than " + MAX_DESCRIPTION_LENGTH + " symbols");
+        if (film.getDescription().length() > maxDescriptionLength){
+            throw new ValidatorException("Film description length is more than " + maxDescriptionLength + " symbols");
         }
 
         // release date not earlier than y
-        if (filmDate.isBefore(MIN_FILMDATE)){
+        if (filmDate.isBefore(minFilmDate)) {
             throw new ValidatorException("The film shouldn't be released before " +
-                    LocalDate.ofInstant(MIN_FILMDATE, ZoneOffset.of("+00:00")) + "." +
+                    LocalDate.ofInstant(minFilmDate, ZoneOffset.of("+00:00")) + "." +
                     "The \"" + film.getName() + "\" was released at " + relDate);
         }
 
-        if (film.getDuration() <= 0){
+        if (film.getDuration() <= 0) {
             throw new ValidatorException("Film duration must me more than 0");
         }
         return true;
@@ -79,7 +79,7 @@ public class FilmController {
 
     @NonNull
     @PutMapping("/films")
-    public Film putFilmNoArgs(@RequestBody Film film){
+    public Film putFilmNoArgs(@RequestBody Film film) {
         log.info("Film PUT request received: " + film.toString());
         if (validator(film)){
             if (films.containsKey(film.getId())){
@@ -111,13 +111,13 @@ public class FilmController {
 
     @GetMapping("/films")
     public ArrayList<Film> getFilmsAtArrayList(){
-        if (films.size() > 0){
+        if (films.size() > 0) {
             return new ArrayList<>(films.values());
         } else throw new ResponseStatusException(HttpStatusCode.valueOf(418), "Film list is empty");
     }
 
     @GetMapping("/films/{id}")
-    public Film getFilmById(@PathVariable int id){
+    public Film getFilmById(@PathVariable int id) {
         if (films.containsKey(id)) return films.get(id);
         else throw new ObjectNotFound("Film id=" + id + " not found");
     }

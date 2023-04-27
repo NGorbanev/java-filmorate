@@ -20,18 +20,18 @@ public class UserController {
     Logger log = Logger.getLogger(getClass().getName());
     int id = 0;
 
-    private int generateUserID(){
+    private int generateUserID() {
         id++;
         return id;
     }
 
-    private boolean validator(User user){
+    private boolean validator(User user) {
         if (user == null) return false;
         // email check
         boolean hasAt = false;
         boolean hasSpace = false; // for login check
         if (user.getEmail().isEmpty()) throw new ValidatorException("Email shouldn't be empty");
-        for (char letter : user.getEmail().toCharArray()){
+        for (char letter : user.getEmail().toCharArray()) {
             if (letter == '@') hasAt = true;
         }
         if (!hasAt) throw new ValidatorException("Email should have a \"@\" digit");
@@ -55,7 +55,7 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    public User posttUser(@RequestBody User user){
+    public User posttUser(@RequestBody User user) {
         log.info("POST request for creating user received: " + user.toString());
         if (validator(user)){
             for (User us : userList.values()){
@@ -75,7 +75,7 @@ public class UserController {
     @PutMapping("/users/{id}")
     public User putUser (@PathVariable int id, @RequestBody User user){
         log.info("PUT request for updating user " + id + " received. User=" + user.toString());
-        if (userList.containsKey(id)){
+        if (userList.containsKey(id)) {
             if (validator(user)){
                 user.setId(id);
                 userList.put(id, user);
@@ -92,10 +92,10 @@ public class UserController {
 
     @NonNull
     @PutMapping("/users")
-    public User postUserNoArgs(@RequestBody User user){
+    public User postUserNoArgs(@RequestBody User user) {
         log.info("PUT request for updating user " + id + " received. User=" + user.toString());
-        if (userList.containsKey(user.getId())){
-            if (validator(user)){
+        if (userList.containsKey(user.getId())) {
+            if (validator(user)) {
                 userList.put(user.getId(), user);
                 log.info("User id=" + user.getId() + " was successfully updated");
                 return userList.get(user.getId());
@@ -116,8 +116,8 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public ArrayList<User> getReturnList(){
-        if (userList.size() != 0){
+    public ArrayList<User> getReturnList() {
+        if (userList.size() != 0) {
             return new ArrayList<>(userList.values());
         }
         else {

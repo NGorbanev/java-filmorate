@@ -7,7 +7,7 @@ import java.util.logging.Logger;
 
 public class ObjectNotFound extends ResponseStatusException {
 
-    public ObjectNotFound(String msg){
+    public ObjectNotFound(String msg) {
         super(HttpStatus.NOT_FOUND, msg);
         Logger log = Logger.getLogger(getClass().getName());
         log.warning("Response 404, cause: " + msg);
