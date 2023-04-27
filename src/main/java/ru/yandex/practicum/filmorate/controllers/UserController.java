@@ -73,7 +73,7 @@ public class UserController {
     }
 
     @PutMapping("/users/{id}")
-    public User putUser (@PathVariable int id, @RequestBody User user) {
+    public User putUser(@PathVariable int id, @RequestBody User user) {
         log.info("PUT request for updating user " + id + " received. User=" + user.toString());
         if (userList.containsKey(id)) {
             if (validator(user)) {
@@ -120,8 +120,7 @@ public class UserController {
     public ArrayList<User> getReturnList() {
         if (userList.size() != 0) {
             return new ArrayList<>(userList.values());
-        }
-        else {
+        } else {
             log.warning("Filmlist is empty");
             throw new ResponseStatusException(HttpStatusCode.valueOf(418), "User list is empty");
         }
