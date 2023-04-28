@@ -1,13 +1,14 @@
 package ru.yandex.practicum.filmorate.controllers;
 
 import lombok.NonNull;
-import org.springframework.http.HttpStatusCode;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.exceptions.ObjectNotFound;
 import ru.yandex.practicum.filmorate.exceptions.ValidatorException;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import java.net.http.HttpResponse;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -113,7 +114,7 @@ public class FilmController {
     public ArrayList<Film> getFilmsAtArrayList() {
         if (films.size() > 0) {
             return new ArrayList<>(films.values());
-        } else throw new ResponseStatusException(HttpStatusCode.valueOf(418), "Film list is empty");
+        } else throw new ResponseStatusException(HttpStatus.valueOf(418), "Film list is empty");
     }
 
     @GetMapping("/films/{id}")

@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.controllers;
 
 import lombok.NonNull;
-import org.springframework.http.HttpStatusCode;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.exceptions.ObjectNotFound;
@@ -59,7 +59,7 @@ public class UserController {
         log.info("POST request for creating user received: " + user.toString());
         if (validator(user)) {
             for (User us : userList.values()) {
-                if (user.getLogin().equals(us.getLogin())) throw new ResponseStatusException(HttpStatusCode.valueOf(409),
+                if (user.getLogin().equals(us.getLogin())) throw new ResponseStatusException(HttpStatus.valueOf(409),
                         "Login " + user.getLogin() + " already exists");
             }
             user.setId(generateUserID());
@@ -85,7 +85,7 @@ public class UserController {
             }
         } else {
             log.warning("User id=" + id + " was not found");
-            throw new ResponseStatusException(HttpStatusCode.valueOf(404), "User id=" + id + " was not found");
+            throw new ResponseStatusException(HttpStatus.valueOf(404), "User id=" + id + " was not found");
         }
     }
 
@@ -112,7 +112,7 @@ public class UserController {
             return userList.get(id);
         } else {
             log.warning("User id=" + id + " was not found");
-            throw new ResponseStatusException(HttpStatusCode.valueOf(404), "User id=" + id + " was not found");
+            throw new ResponseStatusException(HttpStatus.valueOf(404), "User id=" + id + " was not found");
         }
     }
 
@@ -122,7 +122,7 @@ public class UserController {
             return new ArrayList<>(userList.values());
         } else {
             log.warning("Filmlist is empty");
-            throw new ResponseStatusException(HttpStatusCode.valueOf(418), "User list is empty");
+            throw new ResponseStatusException(HttpStatus.valueOf(418), "User list is empty");
         }
     }
 }
