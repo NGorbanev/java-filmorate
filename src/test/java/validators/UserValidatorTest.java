@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.exceptions.ValidatorException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class UserValidatorTest {
 
@@ -63,7 +64,7 @@ public class UserValidatorTest {
     @Test
     public void bithdayTest() {
         LocalDate ld = LocalDate.now().plusDays(1);
-        String dayInFuture = ld.toString().formatted("yyyy-MM-dd");
+        String dayInFuture = ld.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")).toString();
         User user = createUser("Ivan", "Petya2013", "login@server.domen", dayInFuture);
         ValidatorException thrown = Assertions.assertThrowsExactly(ValidatorException.class, () -> uc.posttUser(user));
         Assertions.assertEquals("400 BAD_REQUEST \"User birthday must be in the past\"",
