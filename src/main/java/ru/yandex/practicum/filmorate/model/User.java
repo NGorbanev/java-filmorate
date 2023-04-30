@@ -2,6 +2,8 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.*;
 
+import java.time.LocalDate;
+
 @Data
 @EqualsAndHashCode
 public class User {
@@ -9,5 +11,5 @@ public class User {
     @NonNull String email;
     @NonNull String login;
     String name;
-    @NonNull String birthday;
+    @NonNull LocalDate birthday;
 }

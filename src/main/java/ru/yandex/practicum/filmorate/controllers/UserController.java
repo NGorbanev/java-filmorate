@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controllers;
 
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -9,15 +10,13 @@ import ru.yandex.practicum.filmorate.exceptions.ValidatorException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.*;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.logging.Logger;
 
+@Slf4j
 @RestController
 public class UserController {
-    HashMap<Integer, User> userList = new HashMap<>();
-    Logger log = Logger.getLogger(getClass().getName());
+    private final HashMap<Integer, User> userList = new HashMap<>();
     int id = 0;
 
     private int generateUserID() {
@@ -27,35 +26,26 @@ public class UserController {
 
     private boolean validator(User user) {
         if (user == null) return false;
+
         // email check
-        boolean hasAt = false;
-        boolean hasSpace = false; // for login check
         if (user.getEmail().isEmpty()) throw new ValidatorException("Email shouldn't be empty");
-        for (char letter : user.getEmail().toCharArray()) {
-            if (letter == '@') hasAt = true;
-        }
-        if (!hasAt) throw new ValidatorException("Email should have a \"@\" digit");
+        if (!user.getEmail().contains("@")) throw new ValidatorException("Email should have a \"@\" sign");
 
         // login check
-        for (char letter : user.getLogin().toCharArray()) {
-            if (letter == ' ') hasSpace = true;
+        if (user.getLogin().contains(" ") || user.getLogin().isEmpty()){
+            throw new ValidatorException("Login shouldn't have any spaces or appear empty");
         }
-        if (user.getLogin().isEmpty() || hasSpace)throw new ValidatorException("Login shouldn't have any spaces or appear empty");
 
         // userName check
         if (user.getName() == null || user.getName().isEmpty()) user.setName(user.getLogin());
 
         //birthday check
-        LocalDate userBirthday = LocalDate.parse(user.getBirthday(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        Instant userBD = Instant.ofEpochSecond(userBirthday.toEpochSecond(LocalTime.of(00, 00),
-                ZoneOffset.of("+00:00"))
-        );
-        if (Instant.now().isBefore(userBD)) throw new ValidatorException("User birthday must be in the past");
+        if (LocalDate.now().isBefore(user.getBirthday())) throw new ValidatorException("User birthday must be in the past");
         return true;
     }
 
     @PostMapping("/users")
-    public User posttUser(@RequestBody User user) {
+    public User postUser(@RequestBody User user) {
         log.info("POST request for creating user received: " + user.toString());
         if (validator(user)) {
             for (User us : userList.values()) {
@@ -67,14 +57,17 @@ public class UserController {
             log.info("Request was successfully served");
             return user;
         } else {
-            log.warning("Request was rejected as validator check failed");
+            log.warn("Request was rejected as validator check failed");
             return null;
         }
     }
 
     @PutMapping("/users/{id}")
     public User putUser(@PathVariable int id, @RequestBody User user) {
-        log.info("PUT request for updating user " + id + " received. User=" + user.toString());
+        if (log.isInfoEnabled()) {
+            log.info("PUT request for updating user {} received. User={}", user.getId(), user.toString());
+        }
+
         if (userList.containsKey(id)) {
             if (validator(user)) {
                 user.setId(id);
@@ -84,7 +77,7 @@ public class UserController {
                 throw new ValidatorException("Validation failed");
             }
         } else {
-            log.warning("User id=" + id + " was not found");
+            log.warn("User id={} was not found", id);
             throw new ResponseStatusException(HttpStatus.valueOf(404), "User id=" + id + " was not found");
         }
     }
@@ -97,7 +90,9 @@ public class UserController {
         if (userList.containsKey(user.getId())) {
             if (validator(user)) {
                 userList.put(user.getId(), user);
-                log.info("User id=" + user.getId() + " was successfully updated");
+                if (log.isInfoEnabled()) {
+                    log.info("User id={} was successfully updated", user.getId());
+                }
                 return userList.get(user.getId());
             }
         } else {
@@ -111,17 +106,17 @@ public class UserController {
         if (userList.containsKey(id)) {
             return userList.get(id);
         } else {
-            log.warning("User id=" + id + " was not found");
+            log.warn("User id={} was not found", id);
             throw new ResponseStatusException(HttpStatus.valueOf(404), "User id=" + id + " was not found");
         }
     }
 
     @GetMapping("/users")
-    public ArrayList<User> getReturnList() {
+    public Collection<User> getReturnList() {
         if (userList.size() != 0) {
-            return new ArrayList<>(userList.values());
+            return userList.values();
         } else {
-            log.warning("Filmlist is empty");
+            log.warn("Filmlist is empty");
             throw new ResponseStatusException(HttpStatus.valueOf(418), "User list is empty");
         }
     }

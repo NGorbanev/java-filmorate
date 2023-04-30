@@ -1,15 +1,14 @@
 package ru.yandex.practicum.filmorate.exceptions;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.logging.Logger;
-
+@Slf4j
 public class ValidatorException extends ResponseStatusException {
 
     public ValidatorException(String message) {
         super(HttpStatus.BAD_REQUEST, message);
-        Logger log = Logger.getLogger(getClass().getName());
-        log.warning("Response 400" + ", cause: " + message);
+        log.error("Response 400, cause: {}", message);
     }
 }

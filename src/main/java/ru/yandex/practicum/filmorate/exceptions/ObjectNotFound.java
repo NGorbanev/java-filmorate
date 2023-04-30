@@ -1,15 +1,14 @@
 package ru.yandex.practicum.filmorate.exceptions;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.logging.Logger;
-
+@Slf4j
 public class ObjectNotFound extends ResponseStatusException {
 
     public ObjectNotFound(String msg) {
         super(HttpStatus.NOT_FOUND, msg);
-        Logger log = Logger.getLogger(getClass().getName());
-        log.warning("Response 404, cause: " + msg);
+        log.warn("Response 404, cause: {}", msg);
     }
 }
