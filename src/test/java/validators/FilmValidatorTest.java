@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.exceptions.ValidatorException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 
 public class FilmValidatorTest {
 
