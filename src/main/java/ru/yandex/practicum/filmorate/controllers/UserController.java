@@ -32,7 +32,7 @@ public class UserController {
         if (!user.getEmail().contains("@")) throw new ValidatorException("Email should have a \"@\" sign");
 
         // login check
-        if (user.getLogin().contains(" ") || user.getLogin().isEmpty()){
+        if (user.getLogin().contains(" ") || user.getLogin().isEmpty()) {
             throw new ValidatorException("Login shouldn't have any spaces or appear empty");
         }
 
