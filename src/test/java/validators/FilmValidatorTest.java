@@ -75,12 +75,12 @@ public class FilmValidatorTest {
                 LocalDate.of(1895, 12,29),
                 -5);
         ValidatorException thrown = Assertions.assertThrowsExactly(ValidatorException.class, () -> fc.postFilm(film));
-        Assertions.assertEquals("400 BAD_REQUEST \"Film duration must me more than 0\"", thrown.getMessage());
+        Assertions.assertEquals("400 BAD_REQUEST \"Film duration must be more than 0\"", thrown.getMessage());
 
         //duration is 0
         film.setDuration(0);
         thrown = Assertions.assertThrowsExactly(ValidatorException.class, () -> fc.postFilm(film));
-        Assertions.assertEquals("400 BAD_REQUEST \"Film duration must me more than 0\"", thrown.getMessage());
+        Assertions.assertEquals("400 BAD_REQUEST \"Film duration must be more than 0\"", thrown.getMessage());
 
         //duration is > 0
         film.setDuration(1);

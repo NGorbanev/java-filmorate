@@ -45,16 +45,14 @@ public class FilmController {
 
         // duration check
         if (film.getDuration() <= 0) {
-            throw new ValidatorException("Film duration must me more than 0");
+            throw new ValidatorException("Film duration must be more than 0");
         }
         return true;
     }
 
     @PostMapping("/films")
     public Film postFilm(@RequestBody Film film) {
-        if (log.isInfoEnabled()) {
-            log.info("Film POST request received: " + film.toString());
-        }
+        log.info("Film POST request received: {}", film);
         if (validator(film)) {
             film.setId(generateId());
             films.put(film.getId(), film);
@@ -68,7 +66,7 @@ public class FilmController {
     //@NonNull
     @PutMapping("/films")
     public Film putFilmNoArgs(@RequestBody Film film) {
-        log.info("Film PUT request received: {}", film.toString());
+        log.info("Film PUT request received: {}", film);
         if (films.containsKey(film.getId())) {
             if (validator(film)) {
                 films.put(film.getId(), film);
@@ -83,7 +81,7 @@ public class FilmController {
 
     @PutMapping("/films/{id}")
     public Film putFilm(@PathVariable int id, @RequestBody Film film) {
-        log.info("Film PUT request received: " + film.toString());
+        log.info("Film PUT request received: {}", film);
         if (!films.containsKey(id)) {
             log.warn("Film id={} was not found", id);
             throw new ObjectNotFound("Film for update is not found");
@@ -101,7 +99,7 @@ public class FilmController {
     public Collection<Film> getFilmsAsArrayList() {
         if (films.size() > 0) {
             return films.values();
-        } else throw new ResponseStatusException(HttpStatus.valueOf(418), "Film list is empty");
+        } else throw new ResponseStatusException(HttpStatus.I_AM_A_TEAPOT, "Film list is empty");
     }
 
     @GetMapping("/films/{id}")

@@ -41,44 +41,41 @@ public class UserController {
 
         //birthday check
         if (LocalDate.now().isBefore(user.getBirthday())) throw new ValidatorException("User birthday must be in the past");
+
+        // unique login check
+        for (User us : userList.values()) {
+            if (user.getLogin().equals(us.getLogin())) throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Login " + user.getLogin() + " already exists");
+        }
+
+
         return true;
     }
 
     @PostMapping("/users")
     public User postUser(@RequestBody User user) {
-        log.info("POST request for creating user received: " + user.toString());
+        log.info("POST request for creating user received: {}", user);
         if (validator(user)) {
-            for (User us : userList.values()) {
-                if (user.getLogin().equals(us.getLogin())) throw new ResponseStatusException(HttpStatus.valueOf(409),
-                        "Login " + user.getLogin() + " already exists");
-            }
             user.setId(generateUserID());
             userList.put(user.getId(), user);
             log.info("Request was successfully served");
             return user;
-        } else {
-            log.warn("Request was rejected as validator check failed");
-            return null;
         }
+        return null;
     }
 
     @PutMapping("/users/{id}")
     public User putUser(@PathVariable int id, @RequestBody User user) {
-        if (log.isInfoEnabled()) {
-            log.info("PUT request for updating user {} received. User={}", user.getId(), user.toString());
-        }
-
+        log.info("PUT request for updating user {} received. User={}", user.getId(), user);
         if (userList.containsKey(id)) {
             if (validator(user)) {
                 user.setId(id);
                 userList.put(id, user);
                 return user;
-            } else {
-                throw new ValidatorException("Validation failed");
             }
         } else {
             log.warn("User id={} was not found", id);
-            throw new ResponseStatusException(HttpStatus.valueOf(404), "User id=" + id + " was not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User id=" + id + " was not found");
         }
     }
 
@@ -86,17 +83,13 @@ public class UserController {
     @NonNull
     @PutMapping("/users")
     public User postUserNoArgs(@RequestBody User user) {
-        log.info("PUT request for updating user " + id + " received. User=" + user.toString());
+        log.info("PUT request for updating user {} received. User={}", id, user.toString());
         if (userList.containsKey(user.getId())) {
             if (validator(user)) {
                 userList.put(user.getId(), user);
-                if (log.isInfoEnabled()) {
-                    log.info("User id={} was successfully updated", user.getId());
-                }
+                log.info("User id={} was successfully updated", user.getId());
                 return userList.get(user.getId());
             }
-        } else {
-            throw new ObjectNotFound("User id=" + user.getId() + " was not found");
         }
         throw new ObjectNotFound("User id=" + user.getId() + " was not found");
     }
@@ -107,7 +100,7 @@ public class UserController {
             return userList.get(id);
         } else {
             log.warn("User id={} was not found", id);
-            throw new ResponseStatusException(HttpStatus.valueOf(404), "User id=" + id + " was not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User id=" + id + " was not found");
         }
     }
 
@@ -117,7 +110,7 @@ public class UserController {
             return userList.values();
         } else {
             log.warn("Filmlist is empty");
-            throw new ResponseStatusException(HttpStatus.valueOf(418), "User list is empty");
+            throw new ResponseStatusException(HttpStatus.I_AM_A_TEAPOT, "User list is empty");
         }
     }
 }
