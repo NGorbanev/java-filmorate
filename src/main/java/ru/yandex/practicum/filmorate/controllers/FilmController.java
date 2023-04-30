@@ -85,7 +85,7 @@ public class FilmController {
     public Film putFilm(@PathVariable int id, @RequestBody Film film) {
         log.info("Film PUT request received: " + film.toString());
         if (!films.containsKey(id)) {
-            log.warn ("Film id={} was not found", id);
+            log.warn("Film id={} was not found", id);
             throw new ObjectNotFound("Film for update is not found");
         }
         if (validator(film)) {
