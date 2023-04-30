@@ -77,6 +77,7 @@ public class UserController {
             log.warn("User id={} was not found", id);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User id=" + id + " was not found");
         }
+        return null;
     }
 
 
