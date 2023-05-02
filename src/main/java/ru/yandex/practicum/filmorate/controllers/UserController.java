@@ -24,7 +24,7 @@ public class UserController {
         return id;
     }
 
-    private boolean validator(User user) {
+    private boolean validator(User user, boolean needToCheckLogin) {
         if (user == null) return false;
 
         // email check
@@ -43,32 +43,32 @@ public class UserController {
         if (LocalDate.now().isBefore(user.getBirthday())) throw new ValidatorException("User birthday must be in the past");
 
         // unique login check
-        for (User us : userList.values()) {
-            if (user.getLogin().equals(us.getLogin())) throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "Login " + user.getLogin() + " already exists");
+        if (needToCheckLogin) {
+            for (User us : userList.values()) {
+                if (user.getLogin().equals(us.getLogin())) throw new ResponseStatusException(HttpStatus.CONFLICT,
+                        "Login " + user.getLogin() + " already exists");
+            }
         }
-
-
         return true;
     }
 
     @PostMapping("/users")
     public User postUser(@RequestBody User user) {
         log.info("POST request for creating user received: {}", user);
-        if (validator(user)) {
+        if (validator(user, true)) {
             user.setId(generateUserID());
             userList.put(user.getId(), user);
             log.info("Request was successfully served");
             return user;
         }
-        return null;
+        throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE);
     }
 
     @PutMapping("/users/{id}")
     public User putUser(@PathVariable int id, @RequestBody User user) {
         log.info("PUT request for updating user {} received. User={}", user.getId(), user);
         if (userList.containsKey(id)) {
-            if (validator(user)) {
+            if (validator(user, false)) {
                 user.setId(id);
                 userList.put(id, user);
                 return user;
@@ -77,7 +77,7 @@ public class UserController {
             log.warn("User id={} was not found", id);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User id=" + id + " was not found");
         }
-        return null;
+        throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE);
     }
 
 
@@ -86,7 +86,7 @@ public class UserController {
     public User postUserNoArgs(@RequestBody User user) {
         log.info("PUT request for updating user {} received. User={}", id, user.toString());
         if (userList.containsKey(user.getId())) {
-            if (validator(user)) {
+            if (validator(user, false)) {
                 userList.put(user.getId(), user);
                 log.info("User id={} was successfully updated", user.getId());
                 return userList.get(user.getId());
