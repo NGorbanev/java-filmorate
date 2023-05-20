@@ -1,111 +1,70 @@
 package ru.yandex.practicum.filmorate.controllers;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-import ru.yandex.practicum.filmorate.exceptions.ObjectNotFound;
-import ru.yandex.practicum.filmorate.exceptions.ValidatorException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.film.FilmService;
 
-import java.time.LocalDate;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.List;
 
 @RestController
 @Slf4j
 public class FilmController {
-    private static final int maxDescriptionLength = 200;
-    private static final LocalDate minFilmDate = LocalDate.of(1895,12,28);
-    private final HashMap<Integer, Film> films = new HashMap<>();
-    private int id = 1;
+    FilmService filmService;
 
-    private int generateId() {
-        return id++;
-    }
-
-    private boolean validator(Film film) {
-        if (film == null) return false;
-        LocalDate releaseDate = film.getReleaseDate();
-
-        // name shouldn't be empty
-        if (film.getName().isEmpty()) {
-            throw new ValidatorException("Filmname shouldn't be empty");
-        }
-
-        // max description lenght shouldn't me more than x
-        if (film.getDescription().length() > maxDescriptionLength) {
-            throw new ValidatorException("Film description length is more than " + maxDescriptionLength + " symbols");
-        }
-
-        // release date not earlier than y
-        if (releaseDate.isBefore(minFilmDate)) {
-            throw new ValidatorException("The film shouldn't be released before " + minFilmDate);
-        }
-
-        // duration check
-        if (film.getDuration() <= 0) {
-            throw new ValidatorException("Film duration must be more than 0");
-        }
-        return true;
+    @Autowired
+    public FilmController(FilmService fc) {
+        this.filmService = fc;
     }
 
     @PostMapping("/films")
     public Film postFilm(@RequestBody Film film) {
-        log.info("Film POST request received: {}", film);
-        if (validator(film)) {
-            film.setId(generateId());
-            films.put(film.getId(), film);
-            log.info("Request was successfully operated");
-            return film;
-        }
-        return null;
+        log.info("POST request received. Body: {}", film);
+        return filmService.postFilm(film);
     }
 
-
-    //@NonNull
     @PutMapping("/films")
     public Film putFilmNoArgs(@RequestBody Film film) {
-        log.info("Film PUT request received: {}", film);
-        if (films.containsKey(film.getId())) {
-            if (validator(film)) {
-                films.put(film.getId(), film);
-                log.info("Request was successfully operated");
-                return films.get(film.getId());
-            }
-        } else {
-            throw new ObjectNotFound("Film id=" + film.getId() + " not found");
-        }
-        return null;
+        log.info("PUT request received (no params). Body: {}", film);
+        return filmService.putFilmNoArgs(film);
     }
 
     @PutMapping("/films/{id}")
     public Film putFilm(@PathVariable int id, @RequestBody Film film) {
-        log.info("Film PUT request received: {}", film);
-        if (!films.containsKey(id)) {
-            log.warn("Film id={} was not found", id);
-            throw new ObjectNotFound("Film for update is not found");
-        }
-        if (validator(film)) {
-            film.setId(id);
-            films.put(id, film);
-            log.info("Film id={} was updated", id);
-            return films.get(id);
-        }
-        throw new ObjectNotFound("Film id=" + id + " not found");
+        log.info("PUT request for filmId={} received. Body: ", film);
+        return filmService.putFilm(id, film);
     }
 
     @GetMapping("/films")
     public Collection<Film> getFilmsAsArrayList() {
-        if (films.size() > 0) {
-            return films.values();
-        } else throw new ResponseStatusException(HttpStatus.I_AM_A_TEAPOT, "Film list is empty");
+        log.info("GET request for getting all films received");
+        return filmService.getFilmsAsArrayList();
     }
 
     @GetMapping("/films/{id}")
     public Film getFilmById(@PathVariable int id) {
-        if (films.containsKey(id)) return films.get(id);
-        else throw new ObjectNotFound("Film id=" + id + " not found");
+        log.info("GET request for filmId={} received", id);
+        return filmService.getFilmById(id);
+    }
+
+    @PutMapping("/films/{id}/like/{userId}")
+    public Film addLike(@PathVariable int id, @PathVariable int userId) {
+        log.info("PUT reqeust for adding like. UserID={}, filmID={}", id, userId);
+        return filmService.addLike(id, userId);
+    }
+
+    @DeleteMapping("/films/{id}/like/{userId}")
+    public Film deleteLike(@PathVariable int id, @PathVariable int userId) {
+        log.info("DELETE reqeust for deleting like. UserID={}, filmID={}", id, userId);
+        return filmService.removeLike(id, userId);
+    }
+
+    @GetMapping("/films/popular")
+    public List<Film> getTopRatedFilms(@RequestParam(defaultValue = "10", required = false) Integer count) {
+        log.info("GET request for {} popular films received", count);
+        return filmService.getTopLikedFilms(count);
     }
 }
 
