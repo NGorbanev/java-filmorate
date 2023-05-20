@@ -25,15 +25,15 @@ public class Film {
         }
         return this;
     }
+
     public Film removeLike(int userId) {
         if (likeList.contains(userId)) {
             likeList.remove(userId);
             return this;
-        }
-        else throw new RuntimeException(String.format("User %s has never liked %s", userId, this.name));
+        } else throw new RuntimeException(String.format("User %s has never liked %s", userId, this.name));
     }
 
-    public int getLikesAmount(){
+    public int getLikesAmount() {
         return likeList.size();
     }
 }
