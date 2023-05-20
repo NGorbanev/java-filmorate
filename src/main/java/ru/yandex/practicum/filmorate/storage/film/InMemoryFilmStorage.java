@@ -42,7 +42,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Collection<Film> getFilmsAsArrayList(){
+    public Collection<Film> getFilmsAsArrayList() {
         return films.values();
     }
 
