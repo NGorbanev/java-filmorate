@@ -22,6 +22,7 @@ public class InMemoryUserStorage implements UserStorage {
         id++;
         return id;
     }
+
     @Override
     public User postUser(User user) {
         if (validator.validate(user, true)) {
@@ -47,6 +48,7 @@ public class InMemoryUserStorage implements UserStorage {
         }
         throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE);
     }
+
     @Override
     public User postUserNoArgs(User user) {
         if (userList.containsKey(user.getId())) {
@@ -58,6 +60,7 @@ public class InMemoryUserStorage implements UserStorage {
         }
         throw new ObjectNotFoundException("User id=" + user.getId() + " was not found");
     }
+
     @Override
     public User getuser(int id) {
         if (userList.containsKey(id)) {
@@ -67,6 +70,7 @@ public class InMemoryUserStorage implements UserStorage {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User id=" + id + " was not found");
         }
     }
+
     @Override
     public Collection<User> getUserList() {
         return userList.values();
