@@ -13,7 +13,7 @@ class FilmorateApplicationTests {
 	@Test
 	void contextLoads() {
 		ApplicationContext context = SpringApplication.run(FilmorateApplication.class);
-		InMemoryFilmStorage InMemoryFilmStorage = context.getBean(InMemoryFilmStorage.class);
+		InMemoryFilmStorage inMemoryFilmStorage = context.getBean(InMemoryFilmStorage.class);
 		InMemoryUserStorage inMemoryUserStorage = context.getBean(InMemoryUserStorage.class);
 	}
 
