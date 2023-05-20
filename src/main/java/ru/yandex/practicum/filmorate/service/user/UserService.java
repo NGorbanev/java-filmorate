@@ -27,15 +27,19 @@ public class UserService {
     public User postUser(User user) {
         return userStorage.postUser(user);
     }
+
     public User putUser(int id, User user) {
         return userStorage.putUser(id, user);
     }
+
     public User postUserNoArgs(User user) {
         return userStorage.postUserNoArgs(user);
     }
+
     public User getuser(int id) {
         return userStorage.getuser(id);
     }
+
     public Collection<User> getUserList() {
         return userStorage.getUserList();
     }
