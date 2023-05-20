@@ -10,7 +10,7 @@ import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 public class FilmorateApplication {
 	public static void main(String[] args) {
 		ApplicationContext context = SpringApplication.run(FilmorateApplication.class, args);
-		InMemoryFilmStorage InMemoryFilmStorage = context.getBean(InMemoryFilmStorage.class);
+		InMemoryFilmStorage inMemoryFilmStorage = context.getBean(InMemoryFilmStorage.class);
 		InMemoryUserStorage inMemoryUserStorage = context.getBean(InMemoryUserStorage.class);
 
 	}
