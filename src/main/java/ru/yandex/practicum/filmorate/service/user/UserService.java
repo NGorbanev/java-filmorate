@@ -40,8 +40,6 @@ public class UserService {
         return userStorage.getUserList();
     }
 
-
-
 // managing methods
     public List<User> addFriend(int friend1Id, int friend2Id) {
         if (friend1Id <= 0 || friend2Id <=0) {

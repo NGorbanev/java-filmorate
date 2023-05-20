@@ -50,6 +50,7 @@ public class FilmService {
     public Collection<Film> getFilmsAsArrayList() {
         return filmStorage.getFilmsAsArrayList();
     }
+
     public Film getFilmById(int id) {
         if (filmIdValidator(id)) {
             return filmStorage.getFilmById(id);
