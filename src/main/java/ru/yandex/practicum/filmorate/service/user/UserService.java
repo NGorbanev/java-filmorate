@@ -46,7 +46,7 @@ public class UserService {
 
 // managing methods
     public List<User> addFriend(int friend1Id, int friend2Id) {
-        if (friend1Id <= 0 || friend2Id <=0) {
+        if (friend1Id <= 0 || friend2Id <= 0) {
             log.warn(String.format("addFriend request for 0 or less value. id1=%s, id2=%s", friend1Id, friend2Id));
             throw new ObjectNotFoundException("UserID shouldnt be 0 or less");
         }
