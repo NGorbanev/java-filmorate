@@ -34,16 +34,19 @@ public class FilmService {
             return filmStorage.postFilm(film);
         } else return film; // unreachable case
     }
+
     public Film putFilmNoArgs(Film film) {
         if (validator.validate(film) && filmIdValidator(film.getId())) {
             return filmStorage.putFilmNoArgs(film);
         } else return film; // unreachable case
     }
+
     public Film putFilm(int id, Film film) {
         if (validator.validate(film) && filmIdValidator(id)) {
             return filmStorage.putFilm(id, film);
         } else return film; // unreachable case
     }
+
     public Collection<Film> getFilmsAsArrayList() {
         return filmStorage.getFilmsAsArrayList();
     }
