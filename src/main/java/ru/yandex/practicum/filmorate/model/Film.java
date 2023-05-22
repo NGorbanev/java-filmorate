@@ -31,7 +31,7 @@ public class Film {
         else throw new OtherException(String.format("User %s has never liked %s", userId, this.name));
     }
 
-    public int getLikesAmount(){
+    public int getLikesAmount() {
         return likeSet.size();
     }
 }
