@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.user.UserService;
 
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.List;
 
@@ -22,20 +23,20 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    public User postUser(@RequestBody User user) {
+    public User postUser(@Valid @RequestBody User user) {
         log.info(String.format("POST request for creating user=%s received", user.getEmail()));
         return userService.postUser(user);
     }
 
     @PutMapping("/users/{id}")
-    public User putUser(@PathVariable int id, @RequestBody User user) {
+    public User putUser(@PathVariable int id, @Valid @RequestBody User user) {
         log.info(String.format("PUT request for userdId=%s received", id));
         return userService.putUser(id, user);
     }
 
     @NonNull
     @PutMapping("/users")
-    public User postUserNoArgs(@RequestBody User user) {
+    public User postUserNoArgs(@Valid @RequestBody User user) {
         log.info(String.format("PUT request for userdId=%s received (no params)", user.getId()));
         return userService.postUserNoArgs(user);
     }
@@ -53,7 +54,7 @@ public class UserController {
     }
 
     @PutMapping("/users/{id}/friends/{friendId}")
-    public List<User> addFriend(@PathVariable int id, @PathVariable(required = false) int friendId) {
+    public List<User> addFriend(@PathVariable int id, @PathVariable int friendId) {
         log.info(String.format("PUT request for making friends received: userId=%s, friendId=%s", id, friendId));
         return userService.addFriend(id, friendId);
     }

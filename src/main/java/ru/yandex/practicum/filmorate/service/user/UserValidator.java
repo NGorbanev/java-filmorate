@@ -11,13 +11,11 @@ import java.time.LocalDate;
 @Service
 public class UserValidator {
 
-    //private ArrayList<User> userList;
     private UserStorage userStorage;
 
     @Autowired
     public UserValidator(UserStorage userStorage) {
         this.userStorage = userStorage;
-        ///userList = new ArrayList<User>(List.of(this.userStorage.getUserList()));
     }
 
     public boolean validate(User user, boolean needToCheckLogin) {

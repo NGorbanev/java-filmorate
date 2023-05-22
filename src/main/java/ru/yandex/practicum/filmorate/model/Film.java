@@ -2,10 +2,11 @@ package ru.yandex.practicum.filmorate.model;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
+import ru.yandex.practicum.filmorate.exceptions.OtherException;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 
 @Data
@@ -16,24 +17,21 @@ public class Film {
     @NonNull String description;
     @NonNull LocalDate releaseDate;
     @NonNull int duration;
-    Set<Integer> likeList = new TreeSet<>();
+    private final Set<Integer> likeSet = new HashSet<>();
 
     public Film addLike(int userId) {
-        if (this.likeList == null || !likeList.contains(userId)) likeList.add(userId);
-        else {
-           throw new RuntimeException(String.format("User %s has already liked %s", userId, this.name));
-        }
+        if (!likeSet.add(userId))
+            throw new OtherException(String.format("User %s has already liked %s", userId, this.name));
+        else likeSet.add(userId);
         return this;
     }
 
     public Film removeLike(int userId) {
-        if (likeList.contains(userId)) {
-            likeList.remove(userId);
-            return this;
-        } else throw new RuntimeException(String.format("User %s has never liked %s", userId, this.name));
+        if (likeSet.remove(userId)) return this;
+        else throw new OtherException(String.format("User %s has never liked %s", userId, this.name));
     }
 
-    public int getLikesAmount() {
-        return likeList.size();
+    public int getLikesAmount(){
+        return likeSet.size();
     }
 }

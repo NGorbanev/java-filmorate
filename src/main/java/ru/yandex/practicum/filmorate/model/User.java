@@ -1,10 +1,11 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.*;
+import ru.yandex.practicum.filmorate.exceptions.OtherException;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 @Data
 @EqualsAndHashCode
@@ -14,16 +15,17 @@ public class User {
     @NonNull String login;
     String name;
     @NonNull LocalDate birthday;
-    Set<Integer> friendList = new TreeSet<>();
+    private final Set<Integer> friends = new HashSet<>();
 
-    public void addFriend(User friend) {
-        if (friend.getClass() == User.class) friendList.add(friend.getId());
-        else throw new RuntimeException("Only users can be added as friends");
+    public User addFriend(User friend) {
+        if (!friends.add(friend.getId())) throw new OtherException("Only users can be added as friends");
+        else friends.add(friend.getId());
+        return this;
     }
 
-    public void removeFriend(User friend) {
-        if (!friendList.contains(friend.getId())) throw new RuntimeException(
-                String.format("User %s hasn't been at %s friendlist", friend.getName(), this.name));
-        else friendList.remove(friend.getId());
+    public User removeFriend(User friend) {
+        if (friends.remove(friend.getId())) return this;
+        else throw new OtherException(
+                        String.format("User %s hasn't been at %s friendlist", friend.getName(), this.name));
     }
 }

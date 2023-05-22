@@ -54,36 +54,36 @@ public class FilmService {
     public Film getFilmById(int id) {
         if (filmIdValidator(id)) {
             return filmStorage.getFilmById(id);
-        } else throw new ObjectNotFoundException(String.format("Film id=%s not found", id));
+        } else throw new ObjectNotFoundException(String.format("Film id=%s was not found", id));
     }
 
     //service methods
     private boolean filmIdValidator(int filmId) {
         if (filmStorage.getFilmById(filmId) == null) {
-            log.warn("Film not found error");
-            throw new ObjectNotFoundException(String.format("Film id=%s not found", filmId));
+            log.warn("Film not found for id={}", filmId);
+            throw new ObjectNotFoundException(String.format("Film id=%s was not found", filmId));
         } else return true;
     }
 
     private boolean userIdValidator(int userId) {
         if (userStorage.getuser(userId) == null) {
-            log.warn("User not found error");
-            throw new ObjectNotFoundException(String.format("User id=%s not found", userId));
+            log.warn("User not found for id={}", userId);
+            throw new ObjectNotFoundException(String.format("User id=%s was not found", userId));
         } else return true;
     }
 
     // business logic methods
     public Film addLike(int filmId, int userId) {
         if (filmIdValidator(filmId) && userIdValidator(userId)) {
-            log.info(String.format("Like successfully added to film id=%s from user id=%s", filmId, userId));
+            log.info("Like successfully added to film id={}} from user id={}}", filmId, userId);
             return filmStorage.putFilm(filmId, filmStorage.getFilmById(filmId).addLike(userId));
         } else throw new OtherException(String.format("Like adding error, FilmId=%s, UserId=%s", filmId, userId));
     }
 
     public Film removeLike(int filmId, int userId) {
-        log.info(String.format("Request for like removal to film id=%s of user id=%s received", filmId, userId));
+        log.info("Request for like removal to film id={} of user id={} received", filmId, userId);
         if (filmIdValidator(filmId) && userIdValidator(userId)) {
-            log.info(String.format("Like from user id=%s to film id=%s was successfully removed", userId, filmId));
+            log.info("Like from user id={} to film id={} was successfully removed", userId, filmId);
             return filmStorage.putFilm(filmId, filmStorage.getFilmById(filmId).removeLike(userId));
         } else throw new OtherException(String.format("Like removal failed, FilmId=%s, UserId=%s", filmId, userId));
     }

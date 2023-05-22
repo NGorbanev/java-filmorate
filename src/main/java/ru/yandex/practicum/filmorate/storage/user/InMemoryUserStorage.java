@@ -3,11 +3,13 @@ package ru.yandex.practicum.filmorate.storage.user;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.user.UserValidator;
 
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.HashMap;
 
@@ -24,6 +26,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
+    @Validated
     public User postUser(User user) {
         if (validator.validate(user, true)) {
             user.setId(generateUserID());
@@ -35,6 +38,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
+    @Validated
     public User putUser(int id, User user) {
         if (userList.containsKey(id)) {
             if (validator.validate(user, false)) {
@@ -44,12 +48,13 @@ public class InMemoryUserStorage implements UserStorage {
             }
         } else {
             log.warn("User id={} was not found", id);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User id=" + id + " was not found");
+            throw new ObjectNotFoundException(String.format("User id=%s was not found", id));
         }
         throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE);
     }
 
     @Override
+    @Validated
     public User postUserNoArgs(User user) {
         if (userList.containsKey(user.getId())) {
             if (validator.validate(user, false)) {
@@ -58,7 +63,7 @@ public class InMemoryUserStorage implements UserStorage {
                 return userList.get(user.getId());
             }
         }
-        throw new ObjectNotFoundException("User id=" + user.getId() + " was not found");
+        throw new ObjectNotFoundException(String.format("User id=%s was not found", id));
     }
 
     @Override
@@ -67,7 +72,7 @@ public class InMemoryUserStorage implements UserStorage {
             return userList.get(id);
         } else {
             log.warn("User id={} was not found", id);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User id=" + id + " was not found");
+            throw new ObjectNotFoundException(String.format("User id=%s was not found", id));
         }
     }
 

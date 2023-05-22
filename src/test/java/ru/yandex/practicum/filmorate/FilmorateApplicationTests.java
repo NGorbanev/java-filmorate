@@ -4,8 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
-import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 @SpringBootTest
 class FilmorateApplicationTests {
@@ -13,8 +13,8 @@ class FilmorateApplicationTests {
 	@Test
 	void contextLoads() {
 		ApplicationContext context = SpringApplication.run(FilmorateApplication.class);
-		InMemoryFilmStorage inMemoryFilmStorage = context.getBean(InMemoryFilmStorage.class);
-		InMemoryUserStorage inMemoryUserStorage = context.getBean(InMemoryUserStorage.class);
+		FilmStorage filmStorage = context.getBean(FilmStorage.class);
+		UserStorage userStorage = context.getBean(UserStorage.class);
 	}
 
 }
