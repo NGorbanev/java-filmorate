@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.user.UserValidator;
 
-import javax.validation.Valid;
 import java.util.Collection;
 import java.util.HashMap;
 

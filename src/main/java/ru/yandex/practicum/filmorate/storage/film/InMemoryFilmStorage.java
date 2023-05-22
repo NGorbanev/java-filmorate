@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import javax.validation.Valid;
 import java.util.Collection;
 import java.util.HashMap;
 
