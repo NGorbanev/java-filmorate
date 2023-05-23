@@ -22,7 +22,6 @@ public class Film {
     public Film addLike(int userId) {
         if (!likeSet.add(userId))
             throw new OtherException(String.format("User %s has already liked %s", userId, this.name));
-        else likeSet.add(userId);
         return this;
     }
 

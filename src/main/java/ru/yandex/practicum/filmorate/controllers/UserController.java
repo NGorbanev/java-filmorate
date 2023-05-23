@@ -23,12 +23,14 @@ public class UserController {
     }
 
     @PostMapping("/users")
+    @Valid
     public User postUser(@Valid @RequestBody User user) {
         log.info(String.format("POST request for creating user=%s received", user.getEmail()));
         return userService.postUser(user);
     }
 
     @PutMapping("/users/{id}")
+    @Valid
     public User putUser(@PathVariable int id, @Valid @RequestBody User user) {
         log.info(String.format("PUT request for userdId=%s received", id));
         return userService.putUser(id, user);
@@ -36,6 +38,7 @@ public class UserController {
 
     @NonNull
     @PutMapping("/users")
+    @Valid
     public User postUserNoArgs(@Valid @RequestBody User user) {
         log.info(String.format("PUT request for userdId=%s received (no params)", user.getId()));
         return userService.postUserNoArgs(user);
@@ -54,6 +57,7 @@ public class UserController {
     }
 
     @PutMapping("/users/{id}/friends/{friendId}")
+    @Valid
     public List<User> addFriend(@PathVariable int id, @PathVariable int friendId) {
         log.info(String.format("PUT request for making friends received: userId=%s, friendId=%s", id, friendId));
         return userService.addFriend(id, friendId);
@@ -72,6 +76,7 @@ public class UserController {
     }
 
     @DeleteMapping("/users/{id}/friends/{friendId}")
+    @Valid
     public List<User> deleteFriend(@PathVariable int id, @PathVariable int friendId) {
         return userService.removeFriend(id, friendId);
     }

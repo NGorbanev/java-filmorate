@@ -66,7 +66,7 @@ public class FilmService {
     }
 
     private boolean userIdValidator(int userId) {
-        if (userStorage.getuser(userId) == null) {
+        if (userStorage.getUser(userId) == null) {
             log.warn("User not found for id={}", userId);
             throw new ObjectNotFoundException(String.format("User id=%s was not found", userId));
         } else return true;
@@ -75,7 +75,7 @@ public class FilmService {
     // business logic methods
     public Film addLike(int filmId, int userId) {
         if (filmIdValidator(filmId) && userIdValidator(userId)) {
-            log.info("Like successfully added to film id={}} from user id={}}", filmId, userId);
+            log.info("Like successfully added to film id={} from user id={}", filmId, userId);
             return filmStorage.putFilm(filmId, filmStorage.getFilmById(filmId).addLike(userId));
         } else throw new OtherException(String.format("Like adding error, FilmId=%s, UserId=%s", filmId, userId));
     }

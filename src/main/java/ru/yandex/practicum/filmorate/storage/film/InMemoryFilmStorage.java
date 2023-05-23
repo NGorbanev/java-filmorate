@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Collection;
@@ -10,7 +9,6 @@ import java.util.HashMap;
 
 @Slf4j
 @Component
-@Validated
 public class InMemoryFilmStorage implements FilmStorage {
     private final HashMap<Integer, Film> films = new HashMap<>();
     private int id = 1;
@@ -20,7 +18,6 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    @Validated
     public Film postFilm(Film film) {
         film.setId(generateId());
         films.put(film.getId(), film);
@@ -29,7 +26,6 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    @Validated
     public Film putFilmNoArgs(Film film) {
             films.put(film.getId(), film);
             log.info("Request was successfully operated");
@@ -37,7 +33,6 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    @Validated
     public Film putFilm(int id, Film film) {
          film.setId(id);
          films.put(id, film);

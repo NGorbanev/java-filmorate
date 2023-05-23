@@ -18,8 +18,8 @@ public class User {
     private final Set<Integer> friends = new HashSet<>();
 
     public User addFriend(User friend) {
-        if (!friends.add(friend.getId())) throw new OtherException("Only users can be added as friends");
-        else friends.add(friend.getId());
+        if (!friends.add(friend.getId())) throw new OtherException(
+                String.format("User id=%s is already a friend of id=%s", friend.getId(), this.getId()));
         return this;
     }
 

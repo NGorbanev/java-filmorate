@@ -21,18 +21,21 @@ public class FilmController {
     }
 
     @PostMapping("/films")
+    @Valid
     public Film postFilm(@Valid @RequestBody Film film) {
         log.info("POST request received. Body: {}", film);
         return filmService.postFilm(film);
     }
 
     @PutMapping("/films")
+    @Valid
     public Film putFilmNoArgs(@Valid @RequestBody Film film) {
         log.info("PUT request received (no params). Body: {}", film);
         return filmService.putFilmNoArgs(film);
     }
 
     @PutMapping("/films/{id}")
+    @Valid
     public Film putFilm(@PathVariable int id, @Valid @RequestBody Film film) {
         log.info("PUT request for filmId={} received. Body: ", film);
         return filmService.putFilm(id, film);
@@ -51,6 +54,7 @@ public class FilmController {
     }
 
     @PutMapping("/films/{id}/like/{userId}")
+    @Valid
     public Film addLike(@PathVariable int id, @PathVariable int userId) {
         log.info("PUT request for adding like. UserID={}, filmID={}", id, userId);
         return filmService.addLike(id, userId);
