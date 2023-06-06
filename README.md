@@ -7,6 +7,54 @@
 
 Внешние ключи поля отмечены на схеме **жирным**
 
+Описание таблиц: 
+
+```
+Table films {
+film_id integer [primary key]
+film_name varchar
+release_date date
+duration integer
+mpa integer
+}
+
+table users {
+user_id integer [primary key]
+email varchar
+login varchar
+name varchar
+birthday date
+}
+
+table frindship {
+friend_1_id integer
+friend_2_id integer
+friendship_acceptance boolean
+}
+
+table likes {
+film_id integer
+user_id integer
+}
+
+table mpa_ratings {
+rating_id integer [primary key]
+rating_name varchar
+rating_description varchar
+}
+
+table gernes {
+genre_id integer [primary key]
+genre_name varchar
+}
+
+table film_genres {
+film_id integer [primary key]
+genre_id integer
+}
+```
+
+
 ## Few request examples
 
 Get film by ID:
