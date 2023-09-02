@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -10,6 +12,7 @@ import java.util.HashMap;
 
 @Slf4j
 @Component
+@Qualifier("inMemoryUserStorage")
 public class InMemoryUserStorage implements UserStorage {
     private final HashMap<Integer, User> userList = new HashMap<>();
     int id = 0;
@@ -37,16 +40,6 @@ public class InMemoryUserStorage implements UserStorage {
             log.warn("User id={} was not found", id);
             throw new ObjectNotFoundException(String.format("User id=%s was not found", id));
         }
-    }
-
-    @Override
-    public User postUserNoArgs(User user) {
-        if (userList.containsKey(user.getId())) {
-            userList.put(user.getId(), user);
-            log.info("User id={} was successfully updated", user.getId());
-            return userList.get(user.getId());
-        }
-        throw new ObjectNotFoundException(String.format("User id=%s was not found", id));
     }
 
     @Override

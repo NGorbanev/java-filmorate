@@ -32,7 +32,7 @@ public class UserController {
     @PutMapping("/users/{id}")
     @Valid
     public User putUser(@PathVariable int id, @Valid @RequestBody User user) {
-        log.info(String.format("PUT request for userdId=%s received", id));
+        log.info(String.format("PUT request for userId=%s received", id));
         return userService.putUser(id, user);
     }
 
@@ -40,8 +40,8 @@ public class UserController {
     @PutMapping("/users")
     @Valid
     public User postUserNoArgs(@Valid @RequestBody User user) {
-        log.info(String.format("PUT request for userdId=%s received (no params)", user.getId()));
-        return userService.postUserNoArgs(user);
+        log.info(String.format("PUT request for userId=%s received (no params)", user.getId()));
+        return userService.putUser(user.getId(), user);
     }
 
     @GetMapping("/users/{id}")

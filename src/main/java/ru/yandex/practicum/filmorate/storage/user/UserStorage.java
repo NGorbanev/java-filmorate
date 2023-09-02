@@ -9,8 +9,6 @@ public interface UserStorage {
 
     public User putUser(int id, User user);
 
-    public User postUserNoArgs(User user);
-
     public User getUser(int id);
 
     public Collection<User> getUserList();

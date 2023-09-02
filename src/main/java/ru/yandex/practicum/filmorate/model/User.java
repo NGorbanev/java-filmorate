@@ -1,21 +1,27 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 import ru.yandex.practicum.filmorate.exceptions.OtherException;
 
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.Set;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @EqualsAndHashCode
 public class User {
     int id;
-    @NonNull String email;
-    @NonNull String login;
+    String email;
+    String login;
     String name;
-    @NonNull LocalDate birthday;
-    private final Set<Integer> friends = new HashSet<>();
+    LocalDate birthday;
+    //@JsonIgnore
+    Set<Integer> friends;
 
     public User addFriend(User friend) {
         if (!friends.add(friend.getId())) throw new OtherException(
@@ -28,4 +34,8 @@ public class User {
         else throw new OtherException(
                         String.format("User %s hasn't been at %s friendlist", friend.getName(), this.name));
     }
+
+    //public Set<Integer> getFriendsId() {
+    //    return friends;
+    //}
 }

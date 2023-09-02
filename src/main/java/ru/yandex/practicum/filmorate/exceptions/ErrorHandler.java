@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.model.ErrorResponse;
 
+import java.sql.SQLIntegrityConstraintViolationException;
+
 @RestControllerAdvice
 @Slf4j
 public class ErrorHandler {
@@ -36,6 +38,13 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidatorExceptions(final ValidatorException e) {
         log.error("Response 400, cause: {}", e.getMessage());
+        return new ErrorResponse(String.format("Bad request. Cause: %s", e.getMessage()));
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleJDBCException(final SQLIntegrityConstraintViolationException e) {
+        log.error("SQL error, Response 400, cause: {}", e.getMessage());
         return new ErrorResponse(String.format("Bad request. Cause: %s", e.getMessage()));
     }
 

@@ -2,9 +2,11 @@ package ru.yandex.practicum.filmorate.service.user;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.OtherException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -20,36 +22,44 @@ public class UserService {
     private UserValidator validator;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
         this.userStorage = userStorage;
         this.validator = new UserValidator(userStorage);
+        log.trace("UserStorage is applied: {}", userStorage.getClass().getSimpleName());
     }
 
 // proxy methods
     public User postUser(User user) {
         if (validator.validate(user, true)) {
-            return userStorage.postUser(user);
-        } else return user;
+            User responseUser = userStorage.postUser(user);
+            log.info("User was posted");
+            log.debug("{} is posted", user);
+            return responseUser;
+        } else return null; // unreachable case
     }
 
     public User putUser(int id, User user) {
+        log.debug("Request to update user information with: {}", user);
+        if (user.getId() != 0 && user.getId() != id) throw new OtherException("Requested userId and userId are not equal");
         if (validator.validate(user, false)) {
-            return userStorage.putUser(id, user);
-        } else return user;
-    }
-
-    public User postUserNoArgs(User user) {
-        if (validator.validate(user, false)) {
-            return userStorage.postUserNoArgs(user);
-        } else return user;
+            log.debug("User that will be updated: {}", userStorage.getUser(id));
+            User updatedUser = userStorage.putUser(id, user);
+            log.info("Put user id={} success", id);
+            return updatedUser;
+        } else return null; // unreachable case
     }
 
     public User getuser(int id) {
-        return userStorage.getUser(id);
+        User user = userStorage.getUser(id);
+        log.debug("User id={} returned. Details: {}", id, user);
+        return user;
     }
 
     public Collection<User> getUserList() {
-        return userStorage.getUserList();
+        Collection<User> response = userStorage.getUserList();
+        log.debug("User list returned. Users count = {}", response.size());
+        log.info("getUserList() success");
+        return response;
     }
 
 // managing methods
@@ -62,9 +72,13 @@ public class UserService {
         User user2 = userStorage.getUser(friend2Id);
         user1.addFriend(user2);
         user2.addFriend(user1);
-        userStorage.putUser(friend1Id, user1);
-        userStorage.putUser(friend2Id, user2);
+        //userStorage.putUser(friend1Id, user1);
+        //userStorage.putUser(friend2Id, user2);
+        userStorage.putUser(user1.getId(), user1);
+        userStorage.putUser(user2.getId(), user2);
         log.info("Request addFriend was served successfully");
+        log.debug("User id={} now has {} friends: {}", user1.getId(), user1.getFriends().size(), user1.getFriends());
+        log.debug("User id={} now has {} friends: {}", user2.getId(), user2.getFriends().size(), user2.getFriends());
         return new ArrayList<User>(List.of(user1, user2));
     }
 
@@ -76,6 +90,8 @@ public class UserService {
         userStorage.putUser(friend1Id, user1);
         userStorage.putUser(friend2Id, user2);
         log.info("Request removeFriend was served successfully");
+        log.debug("User id={} now has {} friends: {}", user1.getId(), user1.getFriends().size(), user1.getFriends());
+        log.debug("User id={} now has {} friends: {}", user2.getId(), user2.getFriends().size(), user2.getFriends());
         return new ArrayList<>(List.of(user1, user2));
 
     }
@@ -87,6 +103,7 @@ public class UserService {
             result.add(userStorage.getUser(friendId));
         }
         log.info("Request getFriendList was served successfully");
+        log.debug("User id={} has {} friends: {}", userId, result.size(), result);
         return result;
     }
 
@@ -98,6 +115,7 @@ public class UserService {
             if (friend.getFriends().contains(usersFriend)) result.add(userStorage.getUser(usersFriend));
         }
         log.info("Request getCommonFriends was served successfully");
+        log.debug("User id={} has {} common friends with user id={} : {}", userId, result.size(), friendId, result);
         return result;
 
     }
