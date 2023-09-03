@@ -26,7 +26,7 @@ class FilmorateApplicationTests {
 
 
 	@Autowired
-	public FilmorateApplicationTests(UserDbStorage userDbStorage, FilmDbStorage filmDbStorage){
+	public FilmorateApplicationTests(UserDbStorage userDbStorage, FilmDbStorage filmDbStorage) {
 		this.testUser = User.builder().email("test@mail.ru")
 				.login("TestUser")
 				.name("TestName")
@@ -42,6 +42,7 @@ class FilmorateApplicationTests {
 		this.userStorage = userDbStorage;
 		this.filmDbStorage = filmDbStorage;
 	}
+
 	@Test
 	public void testPostAndGetUser() {
 		userStorage.postUser(testUser);
@@ -52,12 +53,14 @@ class FilmorateApplicationTests {
 						Assertions.assertThat(user).hasFieldOrPropertyWithValue("id", 1)
 				);
 	}
+
 	@Test
 	public void testPutUser() {
 		User editedUser = userStorage.putUser(1, testUser);
 		editedUser.setLogin("EditedLogin");
 		Assertions.assertThat(editedUser).hasFieldOrPropertyWithValue("login", "EditedLogin");
 	}
+
 	@Test
 	public void testGetUserList() {
 		User secondUser = User.builder()
@@ -80,8 +83,8 @@ class FilmorateApplicationTests {
 				.hasValueSatisfying(
 						film -> Assertions.assertThat(film).hasFieldOrPropertyWithValue("id", 1)
 				);
-
 	}
+
 	@Test
 	public void testPutFilm() {
 		filmDbStorage.postFilm(testFilm);
