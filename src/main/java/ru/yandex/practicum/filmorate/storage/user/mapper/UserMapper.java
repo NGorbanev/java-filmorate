@@ -12,7 +12,7 @@ public class UserMapper implements RowMapper<User> {
 
     final JdbcTemplate jdbcTemplate;
 
-    public UserMapper (JdbcTemplate jdbcTemplate) {
+    public UserMapper(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
