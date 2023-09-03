@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS likes(
 CREATE TABLE IF NOT EXISTS friendship(
 	friend_1_id INTEGER REFERENCES users(user_id),
 	friend_2_id INTEGER REFERENCES users(user_id)
-	--friendship_acceptance boolean maybe i dont need it
+	--friendship_acceptance boolean i think i dont need it. Acceptance is done when both users are friends for each other
 );
 
 CREATE TABLE IF NOT EXISTS film_genres(

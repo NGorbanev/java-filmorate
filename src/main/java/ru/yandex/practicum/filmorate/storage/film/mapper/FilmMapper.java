@@ -3,10 +3,14 @@ package ru.yandex.practicum.filmorate.storage.film.mapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class FilmMapper implements RowMapper<Film> {
@@ -24,25 +28,36 @@ public class FilmMapper implements RowMapper<Film> {
                 .description(rs.getString("film_description"))
                 .releaseDate((rs.getDate("release_date").toLocalDate()))
                 .duration(rs.getInt("duration"))
-                .mpa(rs.getInt("mpa"))
+                .mpa(Mpa.builder()
+                        .id(rs.getInt("rating_id"))
+                        .name(rs.getString("rating_name"))
+                        .description(rs.getString("rating_description"))
+                        .build())
                 .build();
-        return getLikesSet(film);
+        return setGenresList(getLikesSet(film));
     }
-
-    /*
-    private User loadFriendSet(User user) {
-        Set<Integer> friendSet = new HashSet<>(jdbcTemplate.queryForList(
-                "SELECT friend_2_id FROM friendship WHERE friend_1_id = ?;", Integer.class, user.getId()));
-        user.setFriends(friendSet);
-        return user;
-    }
-     */
 
     private Film getLikesSet(Film film) {
         Set<Integer> likers = new HashSet<>((jdbcTemplate.queryForList(
-                "SELECT u.USER_ID FROM USERS u RIGHT JOIN LIKES l ON l.USER_ID = u.USER_ID WHERE l.FILM_id = ?",
+                "SELECT u.USER_ID FROM USERS u RIGHT JOIN likes l ON l.USER_ID = u.USER_ID WHERE l.FILM_id = ?",
                 int.class, film.getId())));
         film.setLikes(likers);
+        return film;
+    }
+
+    private Film setGenresList(Film film) {
+        /*List<Genre> genreList =
+                jdbcTemplate.queryForList("SELECT g.genre_id, g.genre_name FROM genres g LEFT JOIN film_genres fg ON g.genre_id = fg.genre_id " +
+                        "LEFT JOIN films f ON f.film_id = fg.film_id WHERE f.film_id = ?;", Genre.class,
+                        film.getId()
+        );*/
+        List<Genre> genreList = new ArrayList<>(jdbcTemplate.query(
+                "SELECT g.genre_id, g.genre_name " +
+                        "FROM genres g " +
+                        "LEFT JOIN film_genres fg ON g.genre_id = fg.genre_id " +
+                        "LEFT JOIN films f ON f.film_id = fg.film_id " +
+                        "WHERE f.film_id = ?;", new GenreMapper(), film.getId()));
+        film.setGenres(genreList);
         return film;
     }
 }

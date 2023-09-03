@@ -29,35 +29,36 @@ public class FilmService {
     public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage, @Qualifier("userDbStorage")UserStorage userStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
+        log.trace("FilmStorage {} is set up. UserStorage {} is set up",
+                this.filmStorage.getClass().getSimpleName(), this.userStorage.getClass().getSimpleName());
     }
 
     // proxying methods (validator check added here)
     public Film postFilm(Film film) {
         if (validator.validate(film)) {
+            log.trace("Validation for film id={} is done", film.getId());
+            log.trace("Forwarding request to {}", filmStorage.getClass().getSimpleName());
             return filmStorage.postFilm(film);
-        } else return film; // unreachable case
-    }
-
-    //todo if everything works, this should be deleted:
-    public Film putFilmNoArgs(Film film) {
-        if (validator.validate(film) && filmIdValidator(film.getId())) {
-            //return filmStorage.putFilmNoArgs(film);
-            return filmStorage.putFilm(film.getId(), film);
         } else return film; // unreachable case
     }
 
     public Film putFilm(int id, Film film) {
         if (validator.validate(film) && filmIdValidator(id)) {
+            log.trace("Film id={} validation is done", id);
+            log.trace("Forwarding request to {}", filmStorage.getClass().getSimpleName());
             return filmStorage.putFilm(id, film);
         } else return film; // unreachable case
     }
 
     public Collection<Film> getFilmsAsArrayList() {
+        log.trace("Forwarding request to {}", filmStorage.getClass().getSimpleName());
         return filmStorage.getFilmsAsArrayList();
     }
 
     public Film getFilmById(int id) {
         if (filmIdValidator(id)) {
+            log.trace("Film id={} validation is done", id);
+            log.trace("Forwarding request to {}", filmStorage.getClass().getSimpleName());
             return filmStorage.getFilmById(id);
         } else throw new ObjectNotFoundException(String.format("Film id=%s was not found", id));
     }
@@ -78,7 +79,6 @@ public class FilmService {
     }
 
     // business logic methods
-    //todo check
     public Film addLike(int filmId, int userId) {
         if (filmIdValidator(filmId) && userIdValidator(userId)) {
             Film film = filmStorage.putFilm(filmId, filmStorage.getFilmById(filmId).addLike(userId));
@@ -88,7 +88,7 @@ public class FilmService {
     }
 
     public Film removeLike(int filmId, int userId) {
-        log.info("Request for like removal to film id={} of user id={} received", filmId, userId);
+        log.trace("Request for like removal to film id={} of user id={} received", filmId, userId);
         if (filmIdValidator(filmId) && userIdValidator(userId)) {
             Film film = filmStorage.putFilm(filmId, filmStorage.getFilmById(filmId).removeLike(userId));
             log.info("Like from user id={} to film id={} was successfully removed", userId, filmId);
@@ -96,37 +96,32 @@ public class FilmService {
         } else throw new OtherException(String.format("Like removal failed, FilmId=%s, UserId=%s", filmId, userId));
     }
 
-    //public List<Film> getTopLikedFilms(int numOfFilms) {
-    //    return null;
-    //}
-
-
     public List<Film> getTopLikedFilms(int numOfFilms) {
+        log.trace("Request for top {} rated films received", numOfFilms);
         return filmStorage.getFilmsAsArrayList().stream()
                 .sorted((o0, o1) -> compare(o1.getLikeSet().size(), o0.getLikeSet().size()))
                 .limit(numOfFilms)
                 .collect(Collectors.toList());
     }
 
-
     // film attributes request (mpa ratings & genres)
     public List<Genre> getAllGenres() {
-        log.trace("Request serviced");
+        log.trace("Request for getting all genres list serviced");
         return filmStorage.getAllGenres();
     }
 
     public Genre getGenreById(int id) {
-        log.trace("Request serviced");
+        log.trace("Request for getting genre id={}", id);
         return filmStorage.getGenreById(id);
     }
 
     public List<Mpa> getAllMpa() {
-        log.trace("Request serviced");
+        log.trace("Request for getting all Mpa");
         return filmStorage.getAllMpa();
     }
 
     public Mpa getMpaById(int id) {
-        log.trace("Request serviced");
+        log.trace("Request for getting mpa id={}", id);
         return filmStorage.getMpaById(id);
     }
 }

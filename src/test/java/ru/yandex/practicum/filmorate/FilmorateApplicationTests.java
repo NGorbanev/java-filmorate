@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.dao.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.dao.UserDbStorage;
@@ -36,7 +37,7 @@ class FilmorateApplicationTests {
 				.description("This movie is about hard java study process :)")
 				.releaseDate(LocalDate.of(2022,9,11))
 				.duration(300)
-				.mpa(5)
+				.mpa(Mpa.builder().id(5).build())
 				.build();
 		this.userStorage = userDbStorage;
 		this.filmDbStorage = filmDbStorage;
@@ -84,9 +85,10 @@ class FilmorateApplicationTests {
 	@Test
 	public void testPutFilm() {
 		filmDbStorage.postFilm(testFilm);
-		testFilm.setMpa(4);
+		testFilm.setMpa(Mpa.builder().id(4).build());
 		Film editedFilm = filmDbStorage.putFilm(1, testFilm);
-		Assertions.assertThat(editedFilm).hasFieldOrPropertyWithValue("mpa", 4);
+		Assertions.assertThat(editedFilm).hasFieldOrPropertyWithValue(
+				"mpa", editedFilm.getMpa().toString());
 	}
 
 	@Test
@@ -96,7 +98,7 @@ class FilmorateApplicationTests {
 				.description("This film is about reaching success while study")
 				.releaseDate(LocalDate.of(2023,9,1))
 				.duration(3)
-				.mpa(2)
+				.mpa(Mpa.builder().id(2).build())
 				.build();
 		filmDbStorage.postFilm(secondFilm);
 		filmDbStorage.postFilm(testFilm);

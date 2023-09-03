@@ -32,7 +32,6 @@ public class UserService {
     public User postUser(User user) {
         if (validator.validate(user, true)) {
             User responseUser = userStorage.postUser(user);
-            log.info("User was posted");
             log.debug("{} is posted", user);
             return responseUser;
         } else return null; // unreachable case
@@ -71,11 +70,7 @@ public class UserService {
         User user1 = userStorage.getUser(friend1Id);
         User user2 = userStorage.getUser(friend2Id);
         user1.addFriend(user2);
-        user2.addFriend(user1);
-        //userStorage.putUser(friend1Id, user1);
-        //userStorage.putUser(friend2Id, user2);
         userStorage.putUser(user1.getId(), user1);
-        userStorage.putUser(user2.getId(), user2);
         log.info("Request addFriend was served successfully");
         log.debug("User id={} now has {} friends: {}", user1.getId(), user1.getFriends().size(), user1.getFriends());
         log.debug("User id={} now has {} friends: {}", user2.getId(), user2.getFriends().size(), user2.getFriends());
@@ -86,14 +81,11 @@ public class UserService {
         User user1 = userStorage.getUser(friend1Id);
         User user2 = userStorage.getUser(friend2Id);
         user1.removeFriend(user2);
-        user2.removeFriend(user1);
         userStorage.putUser(friend1Id, user1);
-        userStorage.putUser(friend2Id, user2);
         log.info("Request removeFriend was served successfully");
         log.debug("User id={} now has {} friends: {}", user1.getId(), user1.getFriends().size(), user1.getFriends());
         log.debug("User id={} now has {} friends: {}", user2.getId(), user2.getFriends().size(), user2.getFriends());
         return new ArrayList<>(List.of(user1, user2));
-
     }
 
     public List<User> getFriendsList(int userId) {

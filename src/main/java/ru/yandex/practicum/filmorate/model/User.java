@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import ru.yandex.practicum.filmorate.exceptions.OtherException;
@@ -20,7 +19,6 @@ public class User {
     String login;
     String name;
     LocalDate birthday;
-    //@JsonIgnore
     Set<Integer> friends;
 
     public User addFriend(User friend) {
@@ -35,7 +33,4 @@ public class User {
                         String.format("User %s hasn't been at %s friendlist", friend.getName(), this.name));
     }
 
-    //public Set<Integer> getFriendsId() {
-    //    return friends;
-    //}
 }

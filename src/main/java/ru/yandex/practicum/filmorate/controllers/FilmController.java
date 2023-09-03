@@ -20,29 +20,28 @@ public class FilmController {
     @Autowired
     public FilmController(FilmService fc) {
         this.filmService = fc;
+        log.trace("Film service {} is set up", this.filmService.getClass().getSimpleName());
     }
 
     // basic endpoints
-
     @PostMapping("/films")
     @Valid
     public Film postFilm(@Valid @RequestBody Film film) {
-        log.info("POST request received. Film name: {}", film.getName());
+        log.info("POST request received. Film id={}", film.getId());
         return filmService.postFilm(film);
     }
 
     @PutMapping("/films")
     @Valid
     public Film putFilmNoArgs(@Valid @RequestBody Film film) {
-        log.info("PUT request received (no params). Film name: {}", film.getName());
-        //return filmService.putFilmNoArgs(film);
+        log.info("PUT request received (no params). Film id={}", film.getId());
         return filmService.putFilm(film.getId(), film);
     }
 
     @PutMapping("/films/{id}")
     @Valid
     public Film putFilm(@PathVariable int id, @Valid @RequestBody Film film) {
-        log.info("PUT request for filmId={} received. Film name: ", film.getName());
+        log.info("PUT request for filmId={} received", film.getName());
         return filmService.putFilm(id, film);
     }
 
@@ -62,24 +61,23 @@ public class FilmController {
     @PutMapping("/films/{id}/like/{userId}")
     @Valid
     public Film addLike(@PathVariable int id, @PathVariable int userId) {
-        log.info("PUT request for adding like. UserID={}, filmID={}", id, userId);
+        log.info("PUT request for adding like. UserID={}, filmID={}", userId, id);
         return filmService.addLike(id, userId);
     }
 
     @DeleteMapping("/films/{id}/like/{userId}")
     public Film deleteLike(@PathVariable int id, @PathVariable int userId) {
-        log.info("DELETE request for deleting like. UserID={}, filmID={}", id, userId);
+        log.info("DELETE request for deleting like. UserID={}, filmID={}", userId, id);
         return filmService.removeLike(id, userId);
     }
-
 
     @GetMapping("/films/popular")
     public List<Film> getTopRatedFilms(@RequestParam(defaultValue = "10", required = false) Integer count) {
         log.info("GET request for {} popular films received", count);
         return filmService.getTopLikedFilms(count);
     }
-    // Mpa and genres endpoints
 
+    // Mpa and genres endpoints
     @GetMapping("/genres")
     public List<Genre> getGenresList() {
         log.info("GET request for genres list received");
@@ -103,7 +101,5 @@ public class FilmController {
         log.info("GET request for genre id={} received", id);
         return filmService.getMpaById(id);
     }
-
-
 }
 

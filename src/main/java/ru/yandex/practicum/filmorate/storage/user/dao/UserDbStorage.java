@@ -15,9 +15,9 @@ import ru.yandex.practicum.filmorate.storage.user.mapper.UserMapper;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 
 @Slf4j
@@ -60,19 +60,36 @@ public class UserDbStorage implements UserStorage {
                 Date.valueOf(user.getBirthday()),
                 id);
         log.trace("User id={} fields updated", user.getId());
-        log.trace("Updating user id={} friendlist...", id);
+
         // friend list update
+        log.trace("Updating user id={} friendlist...", id);
         if (user.getFriends() != null) {
             log.trace("User id={} 'friends' field is not null", id);
-            //SqlRowSet friendsRow;
             for (int friendId : user.getFriends()) {
                 SqlRowSet friendsRow;
                 log.trace("Looking for friend id={} at userId={} friend list..", friendId, id);
                 friendsRow = jdbcTemplate.queryForRowSet(
                         "SELECT friend_2_id FROM friendship WHERE (friend_1_id = ? AND friend_2_id = ?)", id, friendId);
-                //List<Map<String, Object>> friendsRow = jdbcTemplate.queryForList("SELECT friend_2_id FROM friendship WHERE friend_1_id = ?", id);
                 if (friendsRow.next()) {
                     log.trace("User id={} already has user id={} at friend list. No need to add.", id, friendId);
+                    SqlRowSet friendsDbSet = jdbcTemplate.queryForRowSet("SELECT friend_2_id FROM friendship WHERE friend_1_id = ?", id);
+                    int friendsAtDatabase = 0;
+                    List<Integer> friendsAtDbIds = new ArrayList<>();
+                    while (friendsDbSet.next()) {
+                        friendsAtDatabase++;
+                        friendsAtDbIds.add(friendsDbSet.getInt("friend_2_id"));
+                    }
+                    if (user.getFriends().size() < friendsAtDatabase) {
+                        for (int friend : friendsAtDbIds) {
+                            if (!user.getFriends().contains(friend)) {
+                                log.trace("Deleting user id={} out of user id={} friends list", friendId, id);
+                                jdbcTemplate.update(
+                                        "DELETE FROM friendship WHERE friend_1_id = ? and friend_2_id = ?", id, friend);
+                                log.trace("User id={} is no more a friend for user id={}", friendId, id);
+                            }
+                        }
+                    }
+
                 } else {
                     log.trace("Friend id={} is not found at user id={} friend list. Adding..", friendId, id);
                     jdbcTemplate.update("INSERT INTO friendship(friend_1_id, friend_2_id) VALUES (?, ?)", id, friendId);
@@ -85,42 +102,6 @@ public class UserDbStorage implements UserStorage {
             log.trace("User id={} 'friends' field is null. No need to update friendship table", id);
             return user;
         }
-
-        /*
-        user.setId(id);
-        User updatedUser;
-        SqlRowSet userRows = jdbcTemplate.queryForRowSet("select * from users where user_id = ?", id);
-        if (userRows.next()) {
-            updatedUser = jdbcTemplate.queryForObject("select * from users where user_id = ?",
-                        new UserMapper(jdbcTemplate), user.getId());
-            String sqlQuery = "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? WHERE user_id = ?;";
-            jdbcTemplate.update(sqlQuery,
-                    user.getEmail(),
-                    user.getLogin(),
-                    user.getName(),
-                    Date.valueOf(user.getBirthday()),
-                    id);
-
-            if (user.getFriends() != null) {
-                log.trace("Updating friend list for user id={}", user.getId());
-                SqlRowSet friendRows;
-                for (int friendId : user.getFriends()) {
-                    friendRows = jdbcTemplate.queryForRowSet(
-                            //"SELECT friend_1_id FROM friendship WHERE friend_2_id = ?", friendId);
-                            "SELECT friend_2_id FROM friendship WHERE friend_1_id = ?", friendId);
-                    if (friendRows.next()) {
-                        log.trace("Friend id={} of user id={} found, no need to add", friendId, user.getId());
-                    } else {
-                        log.trace("Adding friend id={} to user id={}", friendId, user.getId());
-                        jdbcTemplate.update("INSERT INTO friendship(friend_1_id, friend_2_id) VALUES (?, ?)",id, friendId);
-                        log.trace("Friend added");
-                    }
-                }
-            }
-            log.info("User {} was successfully updated", user.getLogin());
-            return user;
-        } else throw new ObjectNotFoundException(String.format("User id=%s was not found", id));
-        */
     }
 
     @Override

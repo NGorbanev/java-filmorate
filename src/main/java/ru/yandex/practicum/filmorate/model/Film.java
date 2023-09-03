@@ -5,7 +5,7 @@ import lombok.experimental.FieldDefaults;
 import ru.yandex.practicum.filmorate.exceptions.OtherException;
 
 import java.time.LocalDate;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -21,7 +21,8 @@ public class Film {
     String description;
     LocalDate releaseDate;
     int duration;
-    int mpa;
+    Mpa mpa;
+    List<Genre> genres;
     @JsonIgnore
     Set<Integer> likeSet;
 
