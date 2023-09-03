@@ -31,6 +31,7 @@ public class UserDbStorage implements UserStorage {
         this.jdbcTemplate = jdbcTemplate;
         log.info("userDbStorage is used");
     }
+
     @Override
     public User postUser(User user) {
         String sqlQuery = "INSERT INTO users(email, login, name, birthday) VALUES (?, ?, ? ,?)";
@@ -40,7 +41,7 @@ public class UserDbStorage implements UserStorage {
             stmt.setString(1, user.getEmail());
             stmt.setString(2, user.getLogin());
             stmt.setString(3, user.getName());
-            stmt.setDate (4, Date.valueOf(user.getBirthday()));
+            stmt.setDate(4, Date.valueOf(user.getBirthday()));
             return stmt;
         }, keyHolder);
         user.setId(keyHolder.getKey().intValue());
