@@ -16,7 +16,7 @@ import java.util.Set;
 public class FilmMapper implements RowMapper<Film> {
     JdbcTemplate jdbcTemplate;
 
-    public FilmMapper (JdbcTemplate jdbcTemplate) {
+    public FilmMapper(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
