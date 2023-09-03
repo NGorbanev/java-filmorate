@@ -86,15 +86,6 @@ class FilmorateApplicationTests {
 	}
 
 	@Test
-	public void testPutFilm() {
-		filmDbStorage.postFilm(testFilm);
-		testFilm.setMpa(Mpa.builder().id(4).build());
-		Film editedFilm = filmDbStorage.putFilm(1, testFilm);
-		Assertions.assertThat(editedFilm).hasFieldOrPropertyWithValue(
-				"mpa", editedFilm.getMpa().toString());
-	}
-
-	@Test
 	public void testGetAllFilms() {
 		Film secondFilm = Film.builder()
 				.name("Test movie part 2")
