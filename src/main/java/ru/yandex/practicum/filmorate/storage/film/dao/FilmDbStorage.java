@@ -178,7 +178,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Mpa getMpaById (int id) {
+    public Mpa getMpaById(int id) {
         Mpa mpa;
         try {
             return mpa = jdbcTemplate.queryForObject("SELECT * FROM mpa_ratings WHERE rating_id = ?", new MpaMapper(), id);
