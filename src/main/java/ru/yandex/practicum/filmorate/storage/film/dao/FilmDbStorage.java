@@ -6,6 +6,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -15,13 +16,12 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.film.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.storage.film.mapper.GenreMapper;
 import ru.yandex.practicum.filmorate.storage.film.mapper.MpaMapper;
+import ru.yandex.practicum.filmorate.storage.film.mapper.ServiceFieldsMapper;
 
+import javax.sql.RowSet;
 import java.sql.Date;
 import java.sql.PreparedStatement;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -94,7 +94,43 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Collection<Film> getFilmsAsArrayList() {
         String query = "SELECT f.*, mpa.* FROM films f JOIN mpa_ratings mpa ON f.mpa = mpa.rating_id";
-        return jdbcTemplate.query(query, new FilmMapper(jdbcTemplate));
+        Collection<Film> result = jdbcTemplate.query(query, new FilmMapper(jdbcTemplate));
+        // a way for building the query with unknown amount of films
+        StringBuilder builder = new StringBuilder();
+        for (Film f : result) builder.append(f.getId() + ",");
+        String stringForQuery = builder.toString().substring(0,builder.length()-1);
+        String queryForAllGenresWithFilms = String.format(
+                "SELECT fg.film_id, g.* " +
+                        "FROM FILM_GENRES fg " +
+                        "JOIN films f ON f.film_id = fg.film_id " +
+                        "JOIN genres g ON g.genre_id = fg.genre_id " +
+                        "WHERE f.film_id IN (%s);", stringForQuery);
+
+        // genres update with one request to DB
+        SqlRowSet row = jdbcTemplate.queryForRowSet(queryForAllGenresWithFilms);
+        for (Film f : result) {
+            while (row.next()) {
+                Genre genre = Genre.builder()
+                        .id(row.getInt("GENRE_ID"))
+                        .name(row.getString("GENRE_NAME"))
+                        .build();
+                if (row.getInt("FILM_ID") == f.getId()) f.addGenre(genre);
+            }
+            row.first();
+        }
+
+        // likes update with one request
+        String queryForAllLikesWithFilms = String.format(
+                "SELECT l.* FROM likes l JOIN films f ON l.film_id = f.film_id WHERE f.film_id IN (%s)",
+                stringForQuery);
+        row = jdbcTemplate.queryForRowSet(queryForAllLikesWithFilms);
+        for (Film f : result) {
+            while (row.next()) {
+                if (row.getInt("FILM_ID") == f.getId()) f.addLike(row.getInt("USER_ID"));
+            }
+            row.first();
+        }
+        return result;
     }
 
     @Override

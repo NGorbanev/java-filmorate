@@ -19,9 +19,39 @@ public class FilmMapper implements RowMapper<Film> {
     public FilmMapper(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
+    List<Film> films = new ArrayList<>();
+    boolean workedOut = false;
+    StringBuilder filmsForRequest = new StringBuilder();
+    Film film;
+    List<Integer> likes = new ArrayList<>();
 
     @Override
     public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
+        /*
+        if (!workedOut) {
+            while (rs.next()) {
+                film = Film.builder()
+                        .id(rs.getInt("film_id"))
+                        .name(rs.getString("film_name"))
+                        .description(rs.getString("film_description"))
+                        .releaseDate((rs.getDate("release_date").toLocalDate()))
+                        .duration(rs.getInt("duration"))
+                        .mpa(Mpa.builder()
+                                .id(rs.getInt("rating_id"))
+                                .name(rs.getString("rating_name"))
+                                .description(rs.getString("rating_description"))
+                                .build())
+                        .build();
+                films.add(film);
+            }
+            for (Film f : films) {
+                if (filmsForRequest.isEmpty()) filmsForRequest.append(f.getId());
+                else filmsForRequest.append(", " + f.getId());
+            }
+        }
+        */
+
+
         Film film = Film.builder()
                 .id(rs.getInt("film_id"))
                 .name(rs.getString("film_name"))
@@ -34,7 +64,9 @@ public class FilmMapper implements RowMapper<Film> {
                         .description(rs.getString("rating_description"))
                         .build())
                 .build();
-        return setGenresList(getLikesSet(film));
+        //return setGenresList(getLikesSet(film));
+        return film;
+
     }
 
     private Film getLikesSet(Film film) {
@@ -43,6 +75,7 @@ public class FilmMapper implements RowMapper<Film> {
                 int.class, film.getId())));
         film.setLikes(likers);
         return film;
+
     }
 
     private Film setGenresList(Film film) {

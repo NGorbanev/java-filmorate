@@ -19,8 +19,8 @@ public class User {
     String login;
     String name;
     LocalDate birthday;
-    Set<Integer> friends;
-
+    //Set<Integer> friends;
+/*
     public User addFriend(User friend) {
         if (!friends.add(friend.getId())) throw new OtherException(
                 String.format("User id=%s is already a friend of id=%s", friend.getId(), this.getId()));
@@ -32,5 +32,5 @@ public class User {
         else throw new OtherException(
                         String.format("User %s hasn't been at %s friendlist", friend.getName(), this.name));
     }
-
+*/
 }

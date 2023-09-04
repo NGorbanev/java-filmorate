@@ -59,7 +59,7 @@ public class UserController {
 
     @PutMapping("/users/{id}/friends/{friendId}")
     @Valid
-    public List<User> addFriend(@PathVariable int id, @PathVariable int friendId) {
+    public Collection<User> addFriend(@PathVariable int id, @PathVariable int friendId) {
         log.info("PUT request for making friends received: userId={}, friendId={}", id, friendId);
         return userService.addFriend(id, friendId);
     }
@@ -78,7 +78,7 @@ public class UserController {
 
     @DeleteMapping("/users/{id}/friends/{friendId}")
     @Valid
-    public List<User> deleteFriend(@PathVariable int id, @PathVariable int friendId) {
+    public Collection<User> deleteFriend(@PathVariable int id, @PathVariable int friendId) {
         log.info("DELETE request for user id={} to delete from friendlist of user id={}", friendId, id);
         return userService.removeFriend(id, friendId);
     }
