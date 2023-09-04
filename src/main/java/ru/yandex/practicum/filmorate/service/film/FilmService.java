@@ -96,12 +96,11 @@ public class FilmService {
         } else throw new OtherException(String.format("Like removal failed, FilmId=%s, UserId=%s", filmId, userId));
     }
 
-    public List<Film> getTopLikedFilms(int numOfFilms) {
+    public Collection<Film> getTopLikedFilms(int numOfFilms) {
         log.trace("Request for top {} rated films received", numOfFilms);
-        return filmStorage.getFilmsAsArrayList().stream()
-                .sorted((o0, o1) -> compare(o1.getLikeSet().size(), o0.getLikeSet().size()))
-                .limit(numOfFilms)
-                .collect(Collectors.toList());
+        Collection<Film> result = filmStorage.getTopRatedFilms(numOfFilms);
+        if (result == null || result.size() == 0) return getFilmsAsArrayList();
+        else return result;
     }
 
     // film attributes request (mpa ratings & genres)

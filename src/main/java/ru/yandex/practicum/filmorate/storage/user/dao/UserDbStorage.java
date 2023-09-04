@@ -52,6 +52,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User putUser(int id, User user) {
         // user update
+        // todo добавить обработку исключений от БД
         log.debug("Request for updating user {} received", user);
         String sqlQuery = "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? WHERE user_id = ?;";
         jdbcTemplate.update(sqlQuery,
@@ -63,6 +64,7 @@ public class UserDbStorage implements UserStorage {
         log.trace("User id={} fields updated", user.getId());
 
         // friend list update
+        // todo убрать проверки на дублирование друзей, так как они переехали в БД
         log.trace("Updating user id={} friendlist...", id);
         if (user.getFriends() != null) {
             log.trace("User id={} 'friends' field is not null", id);

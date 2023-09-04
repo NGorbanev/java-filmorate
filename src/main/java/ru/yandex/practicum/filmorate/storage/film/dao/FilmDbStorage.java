@@ -98,6 +98,31 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public Collection<Film> getTopRatedFilms(int neededAmount) {
+        String query =
+                "SELECT f.*, mpa.*, COUNT(l.user_id) " +
+                        "FROM likes l " +
+                        "JOIN films f ON f.film_id = l.film_id " +
+                        "JOIN mpa_ratings mpa ON f.mpa = mpa.rating_id " +
+                        "GROUP BY f.film_id " +
+                        "ORDER BY COUNT(l.user_id) DESC " +
+                        "LIMIT ?";
+        Collection<Film> films = jdbcTemplate.query(query, new FilmMapper(jdbcTemplate), neededAmount);
+
+        // I had to add this part because of Postman tests required it..
+        if (films.size() < neededAmount) {
+            Collection<Film> missedAmount = jdbcTemplate.query(
+                    "SELECT f.*, mpa.* " +
+                            "FROM films f " +
+                            "JOIN mpa_ratings mpa ON f.mpa = mpa.rating_id " +
+                            "LIMIT ?", new FilmMapper(jdbcTemplate), neededAmount - films.size());
+            missedAmount.removeIf(films::contains);
+            films.addAll(missedAmount);
+        }
+        return films;
+    }
+
+    @Override
     public Film getFilmById(int id) {
         Film film;
         try {

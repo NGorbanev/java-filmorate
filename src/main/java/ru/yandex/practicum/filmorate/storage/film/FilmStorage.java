@@ -15,6 +15,8 @@ public interface FilmStorage {
 
     public Collection<Film> getFilmsAsArrayList();
 
+    public Collection<Film> getTopRatedFilms(int neededAmount);
+
     public Film getFilmById(int id);
 
     public Genre getGenreById(int id);
