@@ -46,11 +46,6 @@ public class FilmMapper implements RowMapper<Film> {
     }
 
     private Film setGenresList(Film film) {
-        /*List<Genre> genreList =
-                jdbcTemplate.queryForList("SELECT g.genre_id, g.genre_name FROM genres g LEFT JOIN film_genres fg ON g.genre_id = fg.genre_id " +
-                        "LEFT JOIN films f ON f.film_id = fg.film_id WHERE f.film_id = ?;", Genre.class,
-                        film.getId()
-        );*/
         List<Genre> genreList = new ArrayList<>(jdbcTemplate.query(
                 "SELECT g.genre_id, g.genre_name " +
                         "FROM genres g " +
