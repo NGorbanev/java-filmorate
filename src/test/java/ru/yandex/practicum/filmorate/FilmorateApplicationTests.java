@@ -96,7 +96,7 @@ class FilmorateApplicationTests {
 				.build();
 		filmDbStorage.postFilm(secondFilm);
 		filmDbStorage.postFilm(testFilm);
-		Collection<Film> filmList = filmDbStorage.getFilmCollection();
+		Collection<Film> filmList = filmDbStorage.getFilmsAsArrayList();
 		Assertions.assertThat(filmList).hasSize(2);
 	}
 }
