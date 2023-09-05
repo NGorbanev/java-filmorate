@@ -19,6 +19,7 @@ public class FilmMapper implements RowMapper<Film> {
     public FilmMapper(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
+
     List<Film> films = new ArrayList<>();
     boolean workedOut = false;
     StringBuilder filmsForRequest = new StringBuilder();
