@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.film.mapper;
 
 import org.springframework.jdbc.core.RowMapper;
-import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
