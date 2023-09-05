@@ -66,12 +66,12 @@ public class FilmDbStorage implements FilmStorage {
                 "mpa = ? " +
                 "WHERE film_id = ?";
         int countLines = jdbcTemplate.update(query,
-                    film.getName(),
-                    film.getDescription(),
-                    film.getReleaseDate(),
-                    film.getDuration(),
-                    film.getMpa().getId(),
-                    id);
+                film.getName(),
+                film.getDescription(),
+                film.getReleaseDate(),
+                film.getDuration(),
+                film.getMpa().getId(),
+                id);
         if (countLines == 0) {
             log.warn("Film id={} was not found", id);
             throw new ObjectNotFoundException(String.format("Film '%s' id=%s was not found", film.getName(), id));
@@ -141,7 +141,7 @@ public class FilmDbStorage implements FilmStorage {
 
     // actions with likes
     private Film checkLikeSet(Film film) {
-        if (film.getLikeSet() == null) film.setLikes(new HashSet<>());
+        if (film.getLikeSet() == null) film.setLikeSet(new HashSet<>());
         log.trace("Check likes complited. Likes amount: {}", film.getLikeSet().size());
         return film;
     }
@@ -179,9 +179,9 @@ public class FilmDbStorage implements FilmStorage {
                 g.setName(getGenreById(g.getId()).getName());
                 log.trace("Genre {} added to film id={}", g.getName(), film.getId());
             }
-                log.trace("Genre updating succeed");
-                return genreList;
-            }
+            log.trace("Genre updating succeed");
+            return genreList;
+        }
     }
 
     @Override

@@ -2,10 +2,8 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import ru.yandex.practicum.filmorate.exceptions.OtherException;
 
 import java.time.LocalDate;
-import java.util.Set;
 
 @Data
 @Builder
@@ -19,18 +17,5 @@ public class User {
     String login;
     String name;
     LocalDate birthday;
-    Set<Integer> friends;
-
-    public User addFriend(User friend) {
-        if (!friends.add(friend.getId())) throw new OtherException(
-                String.format("User id=%s is already a friend of id=%s", friend.getId(), this.getId()));
-        return this;
-    }
-
-    public User removeFriend(User friend) {
-        if (friends.remove(friend.getId())) return this;
-        else throw new OtherException(
-                        String.format("User %s hasn't been at %s friendlist", friend.getName(), this.name));
-    }
 
 }
