@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.exceptions.OtherException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 
@@ -79,13 +78,6 @@ public class UserService {
     }
 
     public Collection<User> getCommonFriends(int userId, int friendId) {
-        Collection<User> result = new ArrayList<>();
-        Collection<User> usersFriends = userStorage.getFriendsOfUser(userId);
-        for (User friend : userStorage.getFriendsOfUser(friendId)) {
-            if (usersFriends.contains(friend)) result.add(friend);
-        }
-        log.info("Request getCommonFriends was served successfully");
-        log.debug("User id={} has {} common friends with user id={} : {}", userId, result.size(), friendId, result);
-        return result;
+        return userStorage.getCommonFriends(friendId, userId);
     }
 }

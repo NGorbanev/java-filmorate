@@ -83,9 +83,24 @@ public class UserDbStorage implements UserStorage {
             jdbcTemplate.update("DELETE FROM friendship WHERE friend_1_id = ? and friend_2_id = ?", userId, friendId);
         } catch (DataAccessException ex) {
             throw new OtherException(String.format(
-                    "Couldn't remove user id={} from friends of user id={}. They might not being friends", friendId, userId));
+                    "Couldn't remove user id=%s from friends of user id=%s. They might not being friends", friendId, userId));
         }
         return getFriendsOfUser(userId);
+    }
+
+    @Override
+    public Collection<User> getCommonFriends(int userId, int friendId) {
+        Collection<User> commnFriends;
+        try {
+            commnFriends = jdbcTemplate.query(
+                    "SELECT u.* FROM users u, friendship f, friendship o " +
+                            "WHERE u.user_id = f.friend_2_id and u.user_id = o.friend_2_id and f.friend_1_id = ? and o.friend_1_id = ?",
+                    new UserMapper(jdbcTemplate) , userId, friendId);
+        } catch (DataAccessException ex) {
+            throw new ObjectNotFoundException(String.format(
+                    "Couldn't get common friends of user id=%s and id=%s", userId, friendId));
+        }
+        return commnFriends;
     }
 
     @Override

@@ -18,4 +18,6 @@ public interface UserStorage {
     public Collection<User> addFriend(int userId, int friendId);
 
     public Collection<User> removeFriend(int userId, int friendId);
+
+    public Collection<User> getCommonFriends(int userId, int friendId);
 }
