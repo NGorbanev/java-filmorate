@@ -19,10 +19,15 @@ public class FilmMapper implements RowMapper<Film> {
     public FilmMapper(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
+    List<Film> films = new ArrayList<>();
+    boolean workedOut = false;
+    StringBuilder filmsForRequest = new StringBuilder();
+    Film film;
+    List<Integer> likes = new ArrayList<>();
 
     @Override
     public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
-        Film film = Film.builder()
+       Film film = Film.builder()
                 .id(rs.getInt("film_id"))
                 .name(rs.getString("film_name"))
                 .description(rs.getString("film_description"))
@@ -34,15 +39,18 @@ public class FilmMapper implements RowMapper<Film> {
                         .description(rs.getString("rating_description"))
                         .build())
                 .build();
-        return setGenresList(getLikesSet(film));
+        //return setGenresList(getLikesSet(film));
+        return film;
+
     }
 
     private Film getLikesSet(Film film) {
         Set<Integer> likers = new HashSet<>((jdbcTemplate.queryForList(
                 "SELECT u.USER_ID FROM USERS u RIGHT JOIN likes l ON l.USER_ID = u.USER_ID WHERE l.FILM_id = ?",
                 int.class, film.getId())));
-        film.setLikes(likers);
+        film.setLikeSet(likers);
         return film;
+
     }
 
     private Film setGenresList(Film film) {
