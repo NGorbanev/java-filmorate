@@ -14,9 +14,7 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static java.lang.Integer.compare;
 @Slf4j
 @Service
 public class FilmService {
