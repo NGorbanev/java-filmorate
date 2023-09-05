@@ -39,8 +39,7 @@ public class FilmMapper implements RowMapper<Film> {
                         .description(rs.getString("rating_description"))
                         .build())
                 .build();
-        //return setGenresList(getLikesSet(film));
-        return film;
+        return setGenresList(getLikesSet(film));
 
     }
 
