@@ -18,10 +18,7 @@ import ru.yandex.practicum.filmorate.storage.film.mapper.MpaMapper;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -94,7 +91,9 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Collection<Film> getFilmsAsArrayList() {
         String query = "SELECT f.*, mpa.* FROM films f JOIN mpa_ratings mpa ON f.mpa = mpa.rating_id";
-        return jdbcTemplate.query(query, new FilmMapper(jdbcTemplate));
+        Collection<Film> films = jdbcTemplate.query(query, new FilmMapper(jdbcTemplate));
+
+        return updateLikesAndGenres(films);
     }
 
     @Override
@@ -119,6 +118,30 @@ public class FilmDbStorage implements FilmStorage {
             missedAmount.removeIf(films::contains);
             films.addAll(missedAmount);
         }
+        return updateLikesAndGenres(films);
+    }
+
+    private Collection<Film> updateLikesAndGenres(Collection<Film> films) {
+        String idsIn = String.join(",", Collections.nCopies(films.size(), "?"));
+        Object[] idsVal = films.stream().map(Film::getId).toArray();
+        String sql = "SELECT l.FILM_id, u.USER_ID FROM USERS u RIGHT JOIN likes l ON l.USER_ID = u.USER_ID WHERE l.FILM_id in (" + idsIn + ")";
+
+        Map<Integer, Set<Integer>> filmLikes = new HashMap<>();
+        jdbcTemplate.query(sql
+                , (rs) -> { filmLikes.computeIfAbsent(rs.getInt("FILM_ID"), k->new HashSet<>()).add(rs.getInt("USER_ID")); }
+                , idsVal);
+
+        sql = "SELECT f.film_id, g.genre_id, g.genre_name FROM genres g LEFT JOIN film_genres fg ON g.genre_id = fg.genre_id LEFT JOIN films f ON f.film_id = fg.film_id WHERE f.film_id in (" + idsIn + ")";
+
+        Map<Integer, List<Genre>> filmGenres = new HashMap<>();
+        jdbcTemplate.query(sql
+                , (rs) -> { filmGenres.computeIfAbsent(rs.getInt("FILM_ID"), k->new ArrayList<>()).add(new Genre(rs.getInt("GENRE_ID"), rs.getString("GENRE_NAME"))); }
+                , idsVal);
+
+        for (Film f : films) {
+            f.setLikeSet(filmLikes.getOrDefault(f.getId(), new HashSet<>()));
+            f.setGenres(filmGenres.getOrDefault(f.getId(), new ArrayList<>()));
+        }
         return films;
     }
 
@@ -133,7 +156,10 @@ public class FilmDbStorage implements FilmStorage {
                             "WHERE f.film_id = ?", new FilmMapper(jdbcTemplate), id
             );
             log.trace("Film id={} was found", id);
-            return film;
+            ArrayList<Film> foundOne = new ArrayList<>();
+            foundOne.add(film);
+            foundOne = (ArrayList<Film>) updateLikesAndGenres(foundOne);
+            return foundOne.get(0);
         } catch (EmptyResultDataAccessException ex) {
             throw new ObjectNotFoundException(String.format("Film id=%s was not found", id));
         }
@@ -161,7 +187,6 @@ public class FilmDbStorage implements FilmStorage {
     private List<Genre> updateGenres(Film film) {
         if (film.getGenres() == null) {
             log.debug("Film id={} has no genres to store", film.getId());
-            List<Genre> emptyGenreList = new ArrayList<>();
             log.trace("Empty genre list for film id={} is prepared", film.getId());
             return film.getGenres();
         } else {
