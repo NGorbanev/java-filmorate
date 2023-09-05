@@ -6,7 +6,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -19,10 +18,14 @@ import ru.yandex.practicum.filmorate.storage.film.mapper.MpaMapper;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 
 @Slf4j
 @Component
+//@Primary
 @Qualifier("filmDbStorage")
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
@@ -32,7 +35,7 @@ public class FilmDbStorage implements FilmStorage {
         log.info("filmDbStorage is used");
     }
 
-    // basic actions
+    // base actions
     @Override
     public Film postFilm(Film film) {
         String sqlQuery = "INSERT into FILMS(FILM_NAME, RELEASE_DATE, DURATION, MPA, FILM_DESCRIPTION) VALUES (?, ?, ?, ?, ?);";
@@ -47,11 +50,10 @@ public class FilmDbStorage implements FilmStorage {
             return stmt;
         }, keyHolder);
         film.setId(keyHolder.getKey().intValue());
-        film.setMpa(updateMpaDescriptions(film));
+        film.setMpa(updateMpa(film));
         film.setGenres(updateGenres(film));
         log.info("Film {} was successfully added", film.getName());
-        if (film.getLikeSet() == null) film.setLikeSet(new HashSet<>());
-        return film;
+        return checkLikeSet(film);
     }
 
     @Override
@@ -64,64 +66,35 @@ public class FilmDbStorage implements FilmStorage {
                 "mpa = ? " +
                 "WHERE film_id = ?";
         int countLines = jdbcTemplate.update(query,
-                    film.getName(),
-                    film.getDescription(),
-                    film.getReleaseDate(),
-                    film.getDuration(),
-                    film.getMpa().getId(),
-                    id);
+                film.getName(),
+                film.getDescription(),
+                film.getReleaseDate(),
+                film.getDuration(),
+                film.getMpa().getId(),
+                id);
         if (countLines == 0) {
             log.warn("Film id={} was not found", id);
             throw new ObjectNotFoundException(String.format("Film '%s' id=%s was not found", film.getName(), id));
         } else {
             // likes update
-            /*if (film.getLikeSet() != null) {
+            if (film.getLikeSet() != null) {
                 log.trace("getLikesSet for film id={} is not null", id);
                 for (int like : film.getLikeSet()) {
                     jdbcTemplate.update("INSERT INTO LIKES(film_id, user_id) VALUES (?, ?)", film.getId(), like);
                     log.trace("Likes are updated at database");
                 }
-            } else log.trace("getLikesSet is null for film id={}. Nothing to update", id);*/
-            jdbcTemplate.update("DELETE FROM likes WHERE film_id = ?", film.getId());
-            if (film.getLikeSet() != null) {
-                for (int like : film.getLikeSet()) {
-                    jdbcTemplate.update("INSERT INTO LIKES(film_id, user_id) VALUES (?, ?)", film.getId(), like);
-                }
-            } else film.setLikeSet(new HashSet<>());
-            film.setMpa(updateMpaDescriptions(film));
+            } else log.trace("getLikesSet is null for film id={}. Nothing to update", id);
+            film.setMpa(updateMpa(film));
             film.setGenres(updateGenres(film));
             log.info("Film {} was updated", film.getName());
-            if (film.getLikeSet() == null) film.setLikeSet(new HashSet<>());
-            return film;
+            return checkLikeSet(film);
         }
-    }
-
-    public Collection<Film> getFilms(boolean isToRated, int requiredAmount) {
-        Collection<Film> filmCollection;
-        if (!isToRated) {
-            String query = "SELECT f.*, mpa.* FROM films f JOIN mpa_ratings mpa ON f.mpa = mpa.rating_id";
-            filmCollection = jdbcTemplate.query(query, new FilmMapper(jdbcTemplate));
-        } else {
-            String query =
-                    "select f.*, mpa.*, count(distinct l.user_id) cnt " +
-                    "  from films f " +
-                    "   left join likes l on f.film_id = l.film_id " +
-                    "   left join users u on l.user_id = u.user_id " +
-                    "   left join mpa_ratings mpa on f.mpa = mpa.rating_id " +
-                    "group by f.film_id " +
-                    "order by 2 desc nulls last " +
-                    "limit ?";
-            filmCollection = jdbcTemplate.query(query, new FilmMapper(jdbcTemplate), requiredAmount);
-        }
-
-        return getLikesAndGenres(filmCollection);
     }
 
     @Override
-    public Collection<Film> getFilmCollection() {
+    public Collection<Film> getFilmsAsArrayList() {
         String query = "SELECT f.*, mpa.* FROM films f JOIN mpa_ratings mpa ON f.mpa = mpa.rating_id";
-        Collection<Film> result = jdbcTemplate.query(query, new FilmMapper(jdbcTemplate));
-        return getLikesAndGenres(result);
+        return jdbcTemplate.query(query, new FilmMapper(jdbcTemplate));
     }
 
     @Override
@@ -135,7 +108,7 @@ public class FilmDbStorage implements FilmStorage {
                         "ORDER BY COUNT(l.user_id) DESC " +
                         "LIMIT ?";
         Collection<Film> films = jdbcTemplate.query(query, new FilmMapper(jdbcTemplate), neededAmount);
-        films = getLikesAndGenres(films);
+
         // I had to add this part because of Postman tests required it..
         if (films.size() < neededAmount) {
             Collection<Film> missedAmount = jdbcTemplate.query(
@@ -146,54 +119,7 @@ public class FilmDbStorage implements FilmStorage {
             missedAmount.removeIf(films::contains);
             films.addAll(missedAmount);
         }
-        for (Film f : films) f.setGenres(updateGenres(f));
         return films;
-    }
-
-    private Collection<Film> getLikesAndGenres(Collection<Film> films) {
-        // a way for building the query with unknown amount of films
-        if (films.size() > 0) {
-            StringBuilder builder = new StringBuilder();
-            for (Film f : films) {
-                builder.append(f.getId() + ",");
-            }
-            String stringForQuery = builder.toString().substring(0, builder.length() - 1);
-            String queryForAllGenresWithFilms = String.format(
-                    "SELECT fg.film_id, g.* " +
-                            "FROM FILM_GENRES fg " +
-                            "JOIN films f ON f.film_id = fg.film_id " +
-                            "JOIN genres g ON g.genre_id = fg.genre_id " +
-                            "WHERE f.film_id IN (%s);", stringForQuery);
-
-            // genres update with one request to DB
-            SqlRowSet row = jdbcTemplate.queryForRowSet(queryForAllGenresWithFilms);
-            for (Film f : films) {
-                while (row.next()) {
-                    Genre genre = Genre.builder()
-                            .id(row.getInt("GENRE_ID"))
-                            .name(row.getString("GENRE_NAME"))
-                            .build();
-                    if (row.getInt("FILM_ID") == f.getId()) f.addGenre(genre);
-                }
-                row.first();
-                f.setGenres(updateGenres(f));
-            }
-
-            // likes update with one request
-            String queryForAllLikesWithFilms = String.format(
-                    "SELECT l.* FROM likes l JOIN films f ON l.film_id = f.film_id WHERE f.film_id IN (%s)",
-                    stringForQuery);
-            row = jdbcTemplate.queryForRowSet(queryForAllLikesWithFilms);
-            for (Film f : films) {
-                while (row.next()) {
-                    if (row.getInt("FILM_ID") == f.getId()) f.addLike(row.getInt("USER_ID"));
-                }
-                if (f.getLikeSet() == null) f.setLikeSet(new HashSet<>());
-                row.first();
-            }
-        }
-        return films;
-
     }
 
     @Override
@@ -207,10 +133,54 @@ public class FilmDbStorage implements FilmStorage {
                             "WHERE f.film_id = ?", new FilmMapper(jdbcTemplate), id
             );
             log.trace("Film id={} was found", id);
-            film.setGenres(updateGenres(film));
             return film;
         } catch (EmptyResultDataAccessException ex) {
             throw new ObjectNotFoundException(String.format("Film id=%s was not found", id));
+        }
+    }
+
+    // actions with likes
+    private Film checkLikeSet(Film film) {
+        if (film.getLikeSet() == null) film.setLikeSet(new HashSet<>());
+        log.trace("Check likes complited. Likes amount: {}", film.getLikeSet().size());
+        return film;
+    }
+
+    // actions with rating and genres
+    private Mpa updateMpa(Film film) {
+        Mpa mpa;
+        try {
+            mpa = jdbcTemplate.queryForObject("SELECT mpa_ratings.* FROM mpa_ratings WHERE rating_id = ?",
+                    new MpaMapper(), film.getMpa().getId());
+            return mpa;
+        } catch (EmptyResultDataAccessException ex) {
+            throw new ObjectNotFoundException(String.format("Mpa rating id=%s was not found", film.getMpa().getId()));
+        }
+    }
+
+    private List<Genre> updateGenres(Film film) {
+        if (film.getGenres() == null) {
+            log.debug("Film id={} has no genres to store", film.getId());
+            List<Genre> emptyGenreList = new ArrayList<>();
+            log.trace("Empty genre list for film id={} is prepared", film.getId());
+            return film.getGenres();
+        } else {
+            log.debug("Film id={} has {} genres at genre list", film.getId(), film.getGenres().size());
+            List<Genre> genreList = new ArrayList<>();
+            log.trace("Updating genre tables..");
+            jdbcTemplate.update("DELETE FROM film_genres WHERE film_id = ?", film.getId());
+            for (Genre g : film.getGenres()) {
+                if (!genreList.contains(g)) {
+                    genreList.add(g);
+                    jdbcTemplate.update("INSERT INTO film_genres(film_id, genre_id) VALUES (?, ?)", film.getId(), g.getId());
+                } else log.debug("Genre duplicate found with genre id={}", g.getId());
+            }
+            for (Genre g : genreList) {
+                g.setName(getGenreById(g.getId()).getName());
+                log.trace("Genre {} added to film id={}", g.getName(), film.getId());
+            }
+            log.trace("Genre updating succeed");
+            return genreList;
         }
     }
 
@@ -247,48 +217,4 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query("SELECT * FROM mpa_ratings", new MpaMapper());
     }
 
-
-    // Service methods
-    private Mpa updateMpaDescriptions(Film film) {
-        Mpa mpa;
-        try {
-            mpa = jdbcTemplate.queryForObject("SELECT mpa_ratings.* FROM mpa_ratings WHERE rating_id = ?",
-                    new MpaMapper(), film.getMpa().getId());
-            return mpa;
-        } catch (EmptyResultDataAccessException ex) {
-            throw new ObjectNotFoundException(String.format("Mpa rating id=%s was not found", film.getMpa().getId()));
-        }
-    }
-
-    private Film checkLikeSet(Film film) {
-        if (film.getLikeSet() == null) film.setLikeSet(new HashSet<>());
-        log.trace("Check likes complited. Likes amount: {}", film.getLikeSet().size());
-        return film;
-    }
-
-    private List<Genre> updateGenres(Film film) {
-        if (film.getGenres() == null) {
-            log.debug("Film id={} has no genres to store", film.getId());
-            List<Genre> emptyGenreList = new ArrayList<>();
-            log.trace("Empty genre list for film id={} is prepared", film.getId());
-            return emptyGenreList;
-        } else {
-            log.debug("Film id={} has {} genres at genre list", film.getId(), film.getGenres().size());
-            List<Genre> genreList = new ArrayList<>();
-            log.trace("Updating genre tables..");
-            jdbcTemplate.update("DELETE FROM film_genres WHERE film_id = ?", film.getId());
-            for (Genre g : film.getGenres()) {
-                if (!genreList.contains(g)) {
-                    genreList.add(g);
-                    jdbcTemplate.update("INSERT INTO film_genres(film_id, genre_id) VALUES (?, ?)", film.getId(), g.getId());
-                } else log.debug("Genre duplicate found with genre id={}", g.getId());
-            }
-            for (Genre g : genreList) {
-                g.setName(getGenreById(g.getId()).getName());
-                log.trace("Genre {} added to film id={}", g.getName(), film.getId());
-            }
-                log.trace("Genre updating succeed");
-                return genreList;
-            }
-    }
 }

@@ -13,7 +13,7 @@ public interface FilmStorage {
 
     public Film putFilm(int id, Film film);
 
-    public Collection<Film> getFilmCollection();
+    public Collection<Film> getFilmsAsArrayList();
 
     public Collection<Film> getTopRatedFilms(int neededAmount);
 
@@ -26,6 +26,4 @@ public interface FilmStorage {
     public Mpa getMpaById(int id);
 
     public List<Mpa> getAllMpa();
-
-    public Collection<Film> getFilms(boolean isToRated, int requiredAmount);
 }
