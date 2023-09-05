@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ValidatorException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -14,12 +15,12 @@ public class UserValidator {
     private UserStorage userStorage;
 
     @Autowired
-    public UserValidator(UserStorage userStorage) {
+    public UserValidator(@Qualifier("userDbStorage") UserStorage userStorage) {
         this.userStorage = userStorage;
     }
 
     public boolean validate(User user, boolean needToCheckLogin) {
-        if (user == null) return false;
+        if (user == null) throw new ValidatorException("User is null");
 
         // email check
         if (user.getEmail().isEmpty()) throw new ValidatorException("Email shouldn't be empty");
@@ -38,6 +39,7 @@ public class UserValidator {
 
         // unique login check
         if (needToCheckLogin) {
+            if (userStorage.getUserList() == null || userStorage.getUserList().isEmpty()) return true;
             for (User us : userStorage.getUserList()) {
                 if (user.getLogin().equals(us.getLogin())) throw new ValidatorException(
                         "Login " + user.getLogin() + " already exists");

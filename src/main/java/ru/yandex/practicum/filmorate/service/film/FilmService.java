@@ -2,18 +2,19 @@ package ru.yandex.practicum.filmorate.service.film;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.OtherException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static java.lang.Integer.compare;
 @Slf4j
 @Service
 public class FilmService {
@@ -23,36 +24,39 @@ public class FilmService {
     private final FilmValidator validator = new FilmValidator();
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
+    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage, @Qualifier("userDbStorage")UserStorage userStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
+        log.trace("FilmStorage {} is set up. UserStorage {} is set up",
+                this.filmStorage.getClass().getSimpleName(), this.userStorage.getClass().getSimpleName());
     }
 
     // proxying methods (validator check added here)
     public Film postFilm(Film film) {
         if (validator.validate(film)) {
+            log.trace("Validation for film id={} is done", film.getId());
+            log.trace("Forwarding request to {}", filmStorage.getClass().getSimpleName());
             return filmStorage.postFilm(film);
-        } else return film; // unreachable case
-    }
-
-    public Film putFilmNoArgs(Film film) {
-        if (validator.validate(film) && filmIdValidator(film.getId())) {
-            return filmStorage.putFilmNoArgs(film);
         } else return film; // unreachable case
     }
 
     public Film putFilm(int id, Film film) {
         if (validator.validate(film) && filmIdValidator(id)) {
+            log.trace("Film id={} validation is done", id);
+            log.trace("Forwarding request to {}", filmStorage.getClass().getSimpleName());
             return filmStorage.putFilm(id, film);
         } else return film; // unreachable case
     }
 
     public Collection<Film> getFilmsAsArrayList() {
+        log.trace("Forwarding request to {}", filmStorage.getClass().getSimpleName());
         return filmStorage.getFilmsAsArrayList();
     }
 
     public Film getFilmById(int id) {
         if (filmIdValidator(id)) {
+            log.trace("Film id={} validation is done", id);
+            log.trace("Forwarding request to {}", filmStorage.getClass().getSimpleName());
             return filmStorage.getFilmById(id);
         } else throw new ObjectNotFoundException(String.format("Film id=%s was not found", id));
     }
@@ -75,23 +79,46 @@ public class FilmService {
     // business logic methods
     public Film addLike(int filmId, int userId) {
         if (filmIdValidator(filmId) && userIdValidator(userId)) {
+            Film film = filmStorage.putFilm(filmId, filmStorage.getFilmById(filmId).addLike(userId));
             log.info("Like successfully added to film id={} from user id={}", filmId, userId);
-            return filmStorage.putFilm(filmId, filmStorage.getFilmById(filmId).addLike(userId));
+            return film;
         } else throw new OtherException(String.format("Like adding error, FilmId=%s, UserId=%s", filmId, userId));
     }
 
     public Film removeLike(int filmId, int userId) {
-        log.info("Request for like removal to film id={} of user id={} received", filmId, userId);
+        log.trace("Request for like removal to film id={} of user id={} received", filmId, userId);
         if (filmIdValidator(filmId) && userIdValidator(userId)) {
+            Film film = filmStorage.putFilm(filmId, filmStorage.getFilmById(filmId).removeLike(userId));
             log.info("Like from user id={} to film id={} was successfully removed", userId, filmId);
-            return filmStorage.putFilm(filmId, filmStorage.getFilmById(filmId).removeLike(userId));
+            return film;
         } else throw new OtherException(String.format("Like removal failed, FilmId=%s, UserId=%s", filmId, userId));
     }
 
-    public List<Film> getTopLikedFilms(int numOfFilms) {
-        return filmStorage.getFilmsAsArrayList().stream()
-                .sorted((o0, o1) -> compare(o1.getLikesAmount(), o0.getLikesAmount()))
-                .limit(numOfFilms)
-                .collect(Collectors.toList());
+    public Collection<Film> getTopLikedFilms(int numOfFilms) {
+        log.trace("Request for top {} rated films received", numOfFilms);
+        Collection<Film> result = filmStorage.getTopRatedFilms(numOfFilms);
+        if (result == null || result.size() == 0) return getFilmsAsArrayList();
+        else return result;
+    }
+
+    // film attributes request (mpa ratings & genres)
+    public List<Genre> getAllGenres() {
+        log.trace("Request for getting all genres list serviced");
+        return filmStorage.getAllGenres();
+    }
+
+    public Genre getGenreById(int id) {
+        log.trace("Request for getting genre id={}", id);
+        return filmStorage.getGenreById(id);
+    }
+
+    public List<Mpa> getAllMpa() {
+        log.trace("Request for getting all Mpa");
+        return filmStorage.getAllMpa();
+    }
+
+    public Mpa getMpaById(int id) {
+        log.trace("Request for getting mpa id={}", id);
+        return filmStorage.getMpaById(id);
     }
 }

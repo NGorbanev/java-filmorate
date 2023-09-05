@@ -9,9 +9,15 @@ public interface UserStorage {
 
     public User putUser(int id, User user);
 
-    public User postUserNoArgs(User user);
-
     public User getUser(int id);
 
     public Collection<User> getUserList();
+
+    public Collection<User> getFriendsOfUser(int userId);
+
+    public Collection<User> addFriend(int userId, int friendId);
+
+    public Collection<User> removeFriend(int userId, int friendId);
+
+    public Collection<User> getCommonFriends(int userId, int friendId);
 }
