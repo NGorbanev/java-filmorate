@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.service.user.UserService;
 
 import javax.validation.Valid;
 import java.util.Collection;
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -59,26 +58,26 @@ public class UserController {
 
     @PutMapping("/users/{id}/friends/{friendId}")
     @Valid
-    public List<User> addFriend(@PathVariable int id, @PathVariable int friendId) {
+    public Collection<User> addFriend(@PathVariable int id, @PathVariable int friendId) {
         log.info("PUT request for making friends received: userId={}, friendId={}", id, friendId);
         return userService.addFriend(id, friendId);
     }
 
     @GetMapping("/users/{id}/friends")
-    public List<User> getFriendList(@PathVariable int id) {
+    public Collection<User> getFriendList(@PathVariable int id) {
         log.info("GET request for all userId={} friends received", id);
         return userService.getFriendsList(id);
     }
 
     @GetMapping("/users/{id}/friends/common/{otherId}")
-    public List<User> getCommonFriends(@PathVariable int id, @PathVariable int otherId) {
+    public Collection<User> getCommonFriends(@PathVariable int id, @PathVariable int otherId) {
         log.info("GET request for common friends received: userId={}, friendId={}", id, otherId);
         return userService.getCommonFriends(id, otherId);
     }
 
     @DeleteMapping("/users/{id}/friends/{friendId}")
     @Valid
-    public List<User> deleteFriend(@PathVariable int id, @PathVariable int friendId) {
+    public Collection<User> deleteFriend(@PathVariable int id, @PathVariable int friendId) {
         log.info("DELETE request for user id={} to delete from friendlist of user id={}", friendId, id);
         return userService.removeFriend(id, friendId);
     }

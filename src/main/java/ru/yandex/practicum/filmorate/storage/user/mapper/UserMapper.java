@@ -5,8 +5,6 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.Set;
 
 public class UserMapper implements RowMapper<User> {
 
@@ -26,13 +24,6 @@ public class UserMapper implements RowMapper<User> {
                 .name(resultSet.getString("name"))
                 .birthday(resultSet.getDate("birthday").toLocalDate())
                 .build();
-        return loadFriendSet(user);
-    }
-
-    private User loadFriendSet(User user) {
-        Set<Integer> friendSet = new HashSet<>(jdbcTemplate.queryForList(
-                "SELECT friend_2_id FROM friendship WHERE friend_1_id = ?;", Integer.class, user.getId()));
-        user.setFriends(friendSet);
         return user;
     }
 }

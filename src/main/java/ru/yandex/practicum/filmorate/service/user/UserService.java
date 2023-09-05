@@ -12,7 +12,7 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+
 
 @Service
 @Slf4j
@@ -28,7 +28,7 @@ public class UserService {
         log.trace("UserStorage is applied: {}", userStorage.getClass().getSimpleName());
     }
 
-// proxy methods
+    // proxy methods
     public User postUser(User user) {
         if (validator.validate(user, true)) {
             User responseUser = userStorage.postUser(user);
@@ -61,54 +61,31 @@ public class UserService {
         return response;
     }
 
-// managing methods
-    public List<User> addFriend(int friend1Id, int friend2Id) {
-        if (friend1Id <= 0 || friend2Id <= 0) {
-            log.warn("addFriend request for 0 or less value. id1={}, id2={}", friend1Id, friend2Id);
+    // managing methods
+    public Collection<User> addFriend(int userId, int friendId) {
+        if (userId <= 0 || friendId <= 0) {
+            log.warn("addFriend request for 0 or less value. id1={}, id2={}", userId, friendId);
             throw new ObjectNotFoundException("UserID shouldn't be 0 or less");
         }
-        User user1 = userStorage.getUser(friend1Id);
-        User user2 = userStorage.getUser(friend2Id);
-        user1.addFriend(user2);
-        userStorage.putUser(user1.getId(), user1);
-        log.info("Request addFriend was served successfully");
-        log.debug("User id={} now has {} friends: {}", user1.getId(), user1.getFriends().size(), user1.getFriends());
-        log.debug("User id={} now has {} friends: {}", user2.getId(), user2.getFriends().size(), user2.getFriends());
-        return new ArrayList<User>(List.of(user1, user2));
+        return userStorage.addFriend(userId, friendId);
     }
 
-    public List<User> removeFriend(int friend1Id, int friend2Id) {
-        User user1 = userStorage.getUser(friend1Id);
-        User user2 = userStorage.getUser(friend2Id);
-        user1.removeFriend(user2);
-        userStorage.putUser(friend1Id, user1);
-        log.info("Request removeFriend was served successfully");
-        log.debug("User id={} now has {} friends: {}", user1.getId(), user1.getFriends().size(), user1.getFriends());
-        log.debug("User id={} now has {} friends: {}", user2.getId(), user2.getFriends().size(), user2.getFriends());
-        return new ArrayList<>(List.of(user1, user2));
+    public Collection<User> removeFriend(int friend1Id, int friend2Id) {
+        return userStorage.removeFriend(friend1Id, friend2Id);
     }
 
-    public List<User> getFriendsList(int userId) {
-        User user = userStorage.getUser(userId);
-        List<User> result = new ArrayList<>();
-        for (int friendId : user.getFriends()) {
-            result.add(userStorage.getUser(friendId));
-        }
-        log.info("Request getFriendList was served successfully");
-        log.debug("User id={} has {} friends: {}", userId, result.size(), result);
-        return result;
+    public Collection<User> getFriendsList(int userId) {
+        return userStorage.getFriendsOfUser(userId);
     }
 
-    public List<User> getCommonFriends(int userId, int friendId) {
-        List<User> result = new ArrayList<>();
-        User user = userStorage.getUser(userId);
-        User friend = userStorage.getUser(friendId);
-        for (int usersFriend : user.getFriends()) {
-            if (friend.getFriends().contains(usersFriend)) result.add(userStorage.getUser(usersFriend));
+    public Collection<User> getCommonFriends(int userId, int friendId) {
+        Collection<User> result = new ArrayList<>();
+        Collection<User> usersFriends = userStorage.getFriendsOfUser(userId);
+        for (User friend : userStorage.getFriendsOfUser(friendId)) {
+            if (usersFriends.contains(friend)) result.add(friend);
         }
         log.info("Request getCommonFriends was served successfully");
         log.debug("User id={} has {} common friends with user id={} : {}", userId, result.size(), friendId, result);
         return result;
-
     }
 }

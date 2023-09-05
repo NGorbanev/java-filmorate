@@ -25,7 +25,6 @@ import java.util.List;
 
 @Slf4j
 @Component
-//@Primary
 @Qualifier("filmDbStorage")
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
