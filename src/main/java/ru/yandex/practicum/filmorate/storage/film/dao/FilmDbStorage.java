@@ -130,7 +130,7 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.query(sql,
                 (rs) -> {
             filmLikes.computeIfAbsent(rs.getInt("FILM_ID"),
-                    k -> new HashSet<>()).add(rs.getInt("USER_ID"));},
+                    k -> new HashSet<>()).add(rs.getInt("USER_ID")); },
                 idsVal);
 
         sql = "SELECT f.film_id, g.genre_id, g.genre_name FROM genres g LEFT JOIN film_genres fg ON g.genre_id = fg.genre_id LEFT JOIN films f ON f.film_id = fg.film_id WHERE f.film_id in (" + idsIn + ")";
@@ -140,7 +140,7 @@ public class FilmDbStorage implements FilmStorage {
                 (rs) -> {
             filmGenres.computeIfAbsent(rs.getInt("FILM_ID"),
                     k -> new ArrayList<>()).add(new Genre(rs.getInt("GENRE_ID"),
-                    rs.getString("GENRE_NAME")));},
+                    rs.getString("GENRE_NAME"))); },
                 idsVal);
 
         for (Film f : films) {
