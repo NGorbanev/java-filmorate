@@ -27,32 +27,7 @@ public class FilmMapper implements RowMapper<Film> {
 
     @Override
     public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
-        /*
-        if (!workedOut) {
-            while (rs.next()) {
-                film = Film.builder()
-                        .id(rs.getInt("film_id"))
-                        .name(rs.getString("film_name"))
-                        .description(rs.getString("film_description"))
-                        .releaseDate((rs.getDate("release_date").toLocalDate()))
-                        .duration(rs.getInt("duration"))
-                        .mpa(Mpa.builder()
-                                .id(rs.getInt("rating_id"))
-                                .name(rs.getString("rating_name"))
-                                .description(rs.getString("rating_description"))
-                                .build())
-                        .build();
-                films.add(film);
-            }
-            for (Film f : films) {
-                if (filmsForRequest.isEmpty()) filmsForRequest.append(f.getId());
-                else filmsForRequest.append(", " + f.getId());
-            }
-        }
-        */
-
-
-        Film film = Film.builder()
+       Film film = Film.builder()
                 .id(rs.getInt("film_id"))
                 .name(rs.getString("film_name"))
                 .description(rs.getString("film_description"))
@@ -73,7 +48,7 @@ public class FilmMapper implements RowMapper<Film> {
         Set<Integer> likers = new HashSet<>((jdbcTemplate.queryForList(
                 "SELECT u.USER_ID FROM USERS u RIGHT JOIN likes l ON l.USER_ID = u.USER_ID WHERE l.FILM_id = ?",
                 int.class, film.getId())));
-        film.setLikes(likers);
+        film.setLikeSet(likers);
         return film;
 
     }

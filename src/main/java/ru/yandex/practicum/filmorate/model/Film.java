@@ -40,12 +40,6 @@ public class Film {
         else throw new OtherException(String.format("User %s has never liked %s", userId, this.name));
     }
 
-    public Film setLikes(Set<Integer> likeSet) {
-        if (likeSet == null) return this;
-        this.likeSet = likeSet;
-        return this;
-    }
-
     public void addGenre(Genre g) {
         if (this.genres != null) {
             this.genres.add(g);

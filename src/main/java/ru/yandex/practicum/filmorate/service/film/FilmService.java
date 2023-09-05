@@ -13,10 +13,9 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static java.lang.Integer.compare;
 @Slf4j
 @Service
 public class FilmService {
@@ -46,13 +45,21 @@ public class FilmService {
         if (validator.validate(film) && filmIdValidator(id)) {
             log.trace("Film id={} validation is done", id);
             log.trace("Forwarding request to {}", filmStorage.getClass().getSimpleName());
+            if (film.getLikeSet() == null) film.setLikeSet(new HashSet<>());
             return filmStorage.putFilm(id, film);
         } else return film; // unreachable case
     }
 
+    /*
     public Collection<Film> getFilmsAsArrayList() {
         log.trace("Forwarding request to {}", filmStorage.getClass().getSimpleName());
-        return filmStorage.getFilmsAsArrayList();
+        return filmStorage.getFilmCollection();
+    }
+     */
+
+    public Collection<Film> getFilmsAsArrayList() {
+        log.trace("Forwarding request to {}", filmStorage.getClass().getSimpleName());
+        return filmStorage.getFilms(false, 0);
     }
 
     public Film getFilmById(int id) {
@@ -96,9 +103,18 @@ public class FilmService {
         } else throw new OtherException(String.format("Like removal failed, FilmId=%s, UserId=%s", filmId, userId));
     }
 
+    /*
     public Collection<Film> getTopLikedFilms(int numOfFilms) {
         log.trace("Request for top {} rated films received", numOfFilms);
         Collection<Film> result = filmStorage.getTopRatedFilms(numOfFilms);
+        if (result == null || result.size() == 0) return getFilmsAsArrayList();
+        else return result;
+    }
+    */
+
+    public Collection<Film> getTopLikedFilms(int numOfFilms) {
+        log.trace("Request for top {} rated films received", numOfFilms);
+        Collection<Film> result = filmStorage.getFilms(true, numOfFilms);
         if (result == null || result.size() == 0) return getFilmsAsArrayList();
         else return result;
     }
