@@ -127,16 +127,16 @@ public class FilmDbStorage implements FilmStorage {
         String sql = "SELECT l.FILM_id, u.USER_ID FROM USERS u RIGHT JOIN likes l ON l.USER_ID = u.USER_ID WHERE l.FILM_id in (" + idsIn + ")";
 
         Map<Integer, Set<Integer>> filmLikes = new HashMap<>();
-        jdbcTemplate.query(sql
-                , (rs) -> { filmLikes.computeIfAbsent(rs.getInt("FILM_ID"), k->new HashSet<>()).add(rs.getInt("USER_ID")); }
-                , idsVal);
+        jdbcTemplate.query(sql,
+                (rs) -> {filmLikes.computeIfAbsent(rs.getInt("FILM_ID"), k -> new HashSet<>()).add(rs.getInt("USER_ID"));},
+                idsVal);
 
         sql = "SELECT f.film_id, g.genre_id, g.genre_name FROM genres g LEFT JOIN film_genres fg ON g.genre_id = fg.genre_id LEFT JOIN films f ON f.film_id = fg.film_id WHERE f.film_id in (" + idsIn + ")";
 
         Map<Integer, List<Genre>> filmGenres = new HashMap<>();
-        jdbcTemplate.query(sql
-                , (rs) -> { filmGenres.computeIfAbsent(rs.getInt("FILM_ID"), k->new ArrayList<>()).add(new Genre(rs.getInt("GENRE_ID"), rs.getString("GENRE_NAME"))); }
-                , idsVal);
+        jdbcTemplate.query(sql,
+                (rs) -> {filmGenres.computeIfAbsent(rs.getInt("FILM_ID"), k->new ArrayList<>()).add(new Genre(rs.getInt("GENRE_ID"), rs.getString("GENRE_NAME")));},
+                idsVal);
 
         for (Film f : films) {
             f.setLikeSet(filmLikes.getOrDefault(f.getId(), new HashSet<>()));
